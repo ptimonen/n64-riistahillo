@@ -3,60 +3,60 @@
 
 #include <gu.h>
 
-typedef struct Vec3d {
+typedef struct Vec3f {
     float x;
     float y;
     float z;
-} Vec3d;
+} Vec3f;
 
-static inline Vec3d add(Vec3d a, Vec3d b) {
+static inline Vec3f add(Vec3f a, Vec3f b) {
     a.x += b.x;
     a.y += b.y;
     a.z += b.z;
     return a;
 }
 
-static inline void addTo(Vec3d* a, Vec3d b) {
+static inline void addTo(Vec3f* a, Vec3f b) {
     a->x += b.x;
     a->y += b.y;
     a->z += b.z;
 }
 
-static inline Vec3d sub(Vec3d a, Vec3d b) {
+static inline Vec3f sub(Vec3f a, Vec3f b) {
     a.x -= b.x;
     a.y -= b.y;
     a.z -= b.z;
     return a;
 }
 
-static inline void subTo(Vec3d* a, Vec3d b) {
+static inline void subTo(Vec3f* a, Vec3f b) {
     a->x -= b.x;
     a->y -= b.y;
     a->z -= b.z;
 }
 
-static inline Vec3d mul(Vec3d v, float s) {
+static inline Vec3f mul(Vec3f v, float s) {
     v.x *= s;
     v.y *= s;
     v.z *= s;
     return v;
 }
 
-static inline void mulTo(Vec3d* v, float s) {
+static inline void mulTo(Vec3f* v, float s) {
     v->x *= s;
     v->y *= s;
     v->z *= s;
 }
 
-static inline float length(Vec3d v) {
+static inline float length(Vec3f v) {
     return sqrtf(v.x * v.x + v.y * v.y + v.z * v.z);
 }
 
-static inline Vec3d normalize(Vec3d v) {
+static inline Vec3f normalize(Vec3f v) {
     return mul(v, 1.0f / length(v));
 }
 
-static inline void normalizeTo(Vec3d* v) {
+static inline void normalizeTo(Vec3f* v) {
     mulTo(v, 1.0f / length(*v));
 }
 

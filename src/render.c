@@ -56,15 +56,15 @@ void drawChain(GraphicsTask* graphicsTask, ChainNode* chainNodes, int n) {
     n = MIN(VERTEX_BUFFER_MAX_SIZE / 4, n);
 
     for (i = 0; i < n - 1; ++i) {
-        Vec3d start = chainNodes[i].position;
-        Vec3d end = chainNodes[i + 1].position;
-        Vec3d delta = normalize(sub(end, start));
-        Vec3d perp = mul((Vec3d) {delta.y, -delta.x, 0}, 5);
+        Vec3f start = chainNodes[i].position;
+        Vec3f end = chainNodes[i + 1].position;
+        Vec3f delta = normalize(sub(end, start));
+        Vec3f perp = mul((Vec3f) {delta.y, -delta.x, 0}, 5);
 
-        Vec3d v0 = add(start, perp);
-        Vec3d v1 = sub(start, perp);
-        Vec3d v2 = add(end, perp);
-        Vec3d v3 = sub(end, perp);
+        Vec3f v0 = add(start, perp);
+        Vec3f v1 = sub(start, perp);
+        Vec3f v2 = add(end, perp);
+        Vec3f v3 = sub(end, perp);
 
         vertexBuffer[i * 4 + 0] = (Vtx_t) {UNPACK(v0), 0, 0, 0, r, g, b, a};
         vertexBuffer[i * 4 + 1] = (Vtx_t) {UNPACK(v1), 0, 0, 0, r, g, b, a};

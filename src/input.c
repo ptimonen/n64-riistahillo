@@ -19,7 +19,7 @@ void updateInput(struct GameState* gameState) {
     }
 
     if (controllerData.trigger & A_BUTTON) {
-        character->velocity = (Vec3d){0, 0, 0};
+        character->velocity = (Vec3f){0, 0, 0};
     }
 
     if (controllerData.button & B_BUTTON) {

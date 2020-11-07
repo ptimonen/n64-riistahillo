@@ -7,14 +7,14 @@
 #define PLAYER_CHAIN_SEGMENT_LENGTH 200
 
 typedef struct ChainNode {
-    Vec3d position;
-    Vec3d oldPosition;
+    Vec3f position;
+    Vec3f oldPosition;
 } ChainNode;
 
 typedef struct Character {
     float movementSpeed;
-    Vec3d position;
-    Vec3d velocity;
+    Vec3f position;
+    Vec3f velocity;
 } Character;
 
 typedef struct Player {
@@ -23,16 +23,16 @@ typedef struct Player {
 } Player;
 
 typedef struct Camera {
-    Vec3d position;
-    Vec3d target;
-    Vec3d up;
+    Vec3f position;
+    Vec3f target;
+    Vec3f up;
 } Camera;
 
 typedef struct GameState {
     float timeAtGameLoopStart;
     float deltaTime;
     int hideMeshes;
-    Vec3d gravity;
+    Vec3f gravity;
     Player player;
     Camera camera;
 } GameState;

@@ -4,16 +4,16 @@
 
 void setupCharacter(Character* character) {
     character->movementSpeed = 200;
-    character->position = (Vec3d){0, 0, 0};
-    character->velocity = (Vec3d){0, 0, 0};
+    character->position = (Vec3f){0, 0, 0};
+    character->velocity = (Vec3f){0, 0, 0};
 }
 
 void setupPlayer(Player* player) {
     int i;
 
     for (i = 0; i < PLAYER_CHAIN_NODE_COUNT; ++i) {
-        Vec3d segment = (Vec3d){0, PLAYER_CHAIN_SEGMENT_LENGTH, 0};
-        Vec3d position = add(player->character.position, mul(segment, i));
+        Vec3f segment = (Vec3f){0, PLAYER_CHAIN_SEGMENT_LENGTH, 0};
+        Vec3f position = add(player->character.position, mul(segment, i));
 
         player->chainNodes[i].position = position;
         player->chainNodes[i].oldPosition = position;
@@ -23,9 +23,9 @@ void setupPlayer(Player* player) {
 }
 
 void setupCamera(Camera* camera) {
-    camera->position = (Vec3d){0.0f, 0.0f, 2400.0f};
-    camera->target = (Vec3d){0.0f, 0.0f, 0.0f};
-    camera->up = (Vec3d){0.0f, 1.0f, 0.0f};
+    camera->position = (Vec3f){0.0f, 0.0f, 2400.0f};
+    camera->target = (Vec3f){0.0f, 0.0f, 0.0f};
+    camera->up = (Vec3f){0.0f, 1.0f, 0.0f};
 }
 
 void setupGameState(GameState* gameState) {
@@ -33,7 +33,7 @@ void setupGameState(GameState* gameState) {
     gameState->deltaTime = 0.0f;
     gameState->hideMeshes = 0;
 
-    gameState->gravity = (Vec3d){0, -100, 0};
+    gameState->gravity = (Vec3f){0, -100, 0};
 
     setupPlayer(&gameState->player);
     setupCamera(&gameState->camera);
