@@ -7,12 +7,10 @@
 #include "game_state.h"
 #include "graphics.h"
 
-Vec3d cameraPos = {0.0f, 0.0f, 2400.0f};
-Vec3d cameraTarget = {0.0f, 0.0f, 0.0f};
-Vec3d cameraUp = {0.0f, 1.0f, 0.0f};
+#define VERTEX_BUFFER_MAX_SIZE 32
+#define UNPACK(vec) vec.x, vec.y, vec.z
 
-// this is an example of rendering a model defined as a set of static display lists
-void drawModel() {
+void drawTexturedModel(Gfx* gfx) {
     gDPSetCycleType(g_dl++, G_CYC_1CYCLE);
     gDPSetRenderMode(g_dl++, G_RM_AA_ZB_OPA_SURF, G_RM_AA_ZB_OPA_SURF2);
     gSPTexture(g_dl++, 0x8000, 0x8000, 0, 0, G_ON);
@@ -21,88 +19,143 @@ void drawModel() {
     gSPClearGeometryMode(g_dl++, 0xFFFFFFFF);
     gSPSetGeometryMode(g_dl++, G_SHADE | G_SHADING_SMOOTH | G_ZBUFFER);
 
-    gSPDisplayList(g_dl++, Wtx_placeholder_sphere);
+    gSPDisplayList(g_dl++, gfx);
     gDPPipeSync(g_dl++);
 }
 
-void render(struct GameState *gameState) {
-    unsigned short perspNorm;
-    GraphicsTask *gfxTask;
-
-    // switch the current graphics task
-    // also updates the g_dl global variable
-    gfxTask = gfxSwitchTask();
-
-    gfxRCPInit();
-    gfxClearCfb();
-
-    guPerspective(&gfxTask->projection, &perspNorm, FOVY, ASPECT, NEAR_PLANE,
-                  FAR_PLANE, 1.0);
-
-    gSPPerspNormalize(g_dl++, perspNorm);
-
-    guLookAt(&gfxTask->modelview, cameraPos.x, cameraPos.y,
-             cameraPos.z, cameraTarget.x, cameraTarget.y,
-             cameraTarget.z, cameraUp.x, cameraUp.y, cameraUp.z);
+void drawCharacter(GraphicsTask* graphicsTask, const Character* character) {
+    guPosition(
+        &graphicsTask->objectTransforms[0],
+        0, // roll
+        0.0f, // pitch
+        0.0f, // heading
+        1.0f, // scale
+        UNPACK(character->position)
+    );
 
     gSPMatrix(
-            g_dl++,
-            // we use the OS_K0_TO_PHYSICAL macro to convert the pointer to this matrix
-            // into a 'physical' address as required by the RCP
-            OS_K0_TO_PHYSICAL(&(gfxTask->projection)),
-            // these flags tell the graphics microcode what to do with this matrix
-            // documented here: http://n64devkit.square7.ch/tutorial/graphics/1/1_3.htm
-            G_MTX_PROJECTION | // using the projection matrix stack...
-            G_MTX_LOAD | // don't multiply matrix by previously-top matrix in stack
-            G_MTX_NOPUSH // don't push another matrix onto the stack before operation
+        g_dl++,
+        OS_K0_TO_PHYSICAL(&(graphicsTask->objectTransforms[0])),
+        G_MTX_MODELVIEW | G_MTX_PUSH | G_MTX_MUL
     );
 
-    gSPMatrix(g_dl++,
-              OS_K0_TO_PHYSICAL(&(gfxTask->modelview)),
-            // similarly this combination means "replace the modelview matrix with this new matrix"
-              G_MTX_MODELVIEW | G_MTX_NOPUSH | G_MTX_LOAD
-    );
+    drawTexturedModel(Wtx_placeholder_sphere);
 
-    guPosition(
-            &gfxTask->objectTransforms[0],
-            // rotation
-            0, // roll
-            0.0f, // pitch
-            0.0f, // heading
-            1.0f, // scale
-            // position
-            gameState->player.position.x,
-            gameState->player.position.y,
-            gameState->player.position.z
-    );
+    gSPPopMatrix(g_dl++, G_MTX_MODELVIEW);
+}
 
-    // push relative transformation matrix
-    gSPMatrix(g_dl++,
-              OS_K0_TO_PHYSICAL(&(gfxTask->objectTransforms[0])),
-              G_MTX_MODELVIEW | // operating on the modelview matrix stack...
-              G_MTX_PUSH | // ...push another matrix onto the stack...
-              G_MTX_MUL // ...which is multipled by previously-top matrix (eg. a relative transformation)
-    );
+void drawChain(GraphicsTask* graphicsTask, ChainNode* chainNodes, int n) {
+    static Vtx_t vertexBuffer[VERTEX_BUFFER_MAX_SIZE];
+    const int lineWidthHalfPx = 8;
+    const int r = 200;
+    const int g = 127;
+    const int b = 0;
+    const int a = 255;
+    int i;
 
-    if (!gameState->hideMeshes) {
-        drawModel();
+    n = MIN(VERTEX_BUFFER_MAX_SIZE / 4, n);
+
+    for (i = 0; i < n - 1; ++i) {
+        Vec3d start = chainNodes[i].position;
+        Vec3d end = chainNodes[i + 1].position;
+        Vec3d delta = normalize(sub(end, start));
+        Vec3d perp = mul((Vec3d) {delta.y, -delta.x, 0}, 5);
+
+        Vec3d v0 = add(start, perp);
+        Vec3d v1 = sub(start, perp);
+        Vec3d v2 = add(end, perp);
+        Vec3d v3 = sub(end, perp);
+
+        vertexBuffer[i * 4 + 0] = (Vtx_t) {UNPACK(v0), 0, 0, 0, r, g, b, a};
+        vertexBuffer[i * 4 + 1] = (Vtx_t) {UNPACK(v1), 0, 0, 0, r, g, b, a};
+        vertexBuffer[i * 4 + 2] = (Vtx_t) {UNPACK(v2), 0, 0, 0, r, g, b, a};
+        vertexBuffer[i * 4 + 3] = (Vtx_t) {UNPACK(v3), 0, 0, 0, r, g, b, a};
     }
 
-    // pop the matrix that we added back off the stack, to move the drawing position
-    // back to where it was before we rendered this object
-    gSPPopMatrix(g_dl++, G_MTX_MODELVIEW);
+    gSPVertex(g_dl++, vertexBuffer, n, 0);
 
-// mark the end of the display list
+    for (i = 0; i < n - 1; ++i) {
+        int x = i * 4;
+        gSP2Triangles(g_dl++, x + 0, x + 1, x + 2, 0, x + 2, x + 1, x + 3, 0);
+    }
+}
+
+void drawPlayer(GraphicsTask* graphicsTask, Player* player) {
+    drawCharacter(graphicsTask, &player->character);
+    drawChain(graphicsTask, player->chainNodes, PLAYER_CHAIN_NODE_COUNT);
+}
+
+void drawDebugInfo() {
+    nuDebConTextColor(0, NU_DEB_CON_TEXT_GREEN);
+    nuDebConDisp(NU_SC_SWAPBUFFER);
+    nuDebConClear(0);
+}
+
+void loadProjectionMatrix(GraphicsTask* graphicsTask) {
+    unsigned short perspNorm;
+    guPerspective(
+        &graphicsTask->projection,
+        &perspNorm,
+        FOVY,
+        ASPECT,
+        NEAR_PLANE,
+        FAR_PLANE,
+        1.0
+    );
+    gSPPerspNormalize(g_dl++, perspNorm);
+
+    gSPMatrix(
+        g_dl++,
+        OS_K0_TO_PHYSICAL(&graphicsTask->projection),
+        G_MTX_PROJECTION | G_MTX_NOPUSH | G_MTX_LOAD
+    );
+}
+
+void loadViewMatrix(GraphicsTask* graphicsTask, const Camera* camera) {
+    guLookAt(
+        &graphicsTask->modelview,
+        UNPACK(camera->position),
+        UNPACK(camera->target),
+        UNPACK(camera->up)
+    );
+
+    gSPMatrix(
+        g_dl++,
+        OS_K0_TO_PHYSICAL(&graphicsTask->modelview),
+        G_MTX_MODELVIEW | G_MTX_NOPUSH | G_MTX_LOAD
+    );
+}
+
+GraphicsTask* beginGraphicsTask() {
+    GraphicsTask* graphicsTask = gfxSwitchTask();
+    gfxRCPInit();
+    gfxClearCfb();
+    return graphicsTask;
+}
+
+void endGraphicsTask(GraphicsTask* graphicsTask) {
     gDPFullSync(g_dl++);
     gSPEndDisplayList(g_dl++);
 
-    assert(g_dl - gfxTask->displayList < MAX_DISPLAY_LIST_COMMANDS);
+    assert(g_dl - graphicsTask->displayList < MAX_DISPLAY_LIST_COMMANDS);
 
-// create a graphics task to render this displaylist and send it to the RCP
     nuGfxTaskStart(
-            gfxTask->displayList,
-            (int) (g_dl - gfxTask->displayList) * sizeof(Gfx),
-            NU_GFX_UCODE_F3DEX, // load the 'F3DEX' version graphics microcode, which runs on the RCP to process this display list
-            NU_SC_SWAPBUFFER // tells NuSystem to immediately display the frame on screen after the RCP finishes rendering it
+        graphicsTask->displayList,
+        (int) (g_dl - graphicsTask->displayList) * sizeof(Gfx),
+        NU_GFX_UCODE_F3DEX, // load the 'F3DEX' version graphics microcode, which runs on the RCP to process this display list
+        NU_SC_SWAPBUFFER // tells NuSystem to immediately display the frame on screen after the RCP finishes rendering it
     );
+}
+
+void render(struct GameState* gameState) {
+    GraphicsTask* graphicsTask = beginGraphicsTask();
+    loadProjectionMatrix(graphicsTask);
+    loadViewMatrix(graphicsTask, &gameState->camera);
+
+    if (!gameState->hideMeshes) {
+        drawPlayer(graphicsTask, &gameState->player);
+    }
+
+    endGraphicsTask(graphicsTask);
+    drawDebugInfo();
 }
