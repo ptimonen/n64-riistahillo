@@ -115,4 +115,8 @@ static inline void normalizeTo3f(Vec3f* v) {
     mulTo3f(v, 1.0f / length(*v));
 }
 
+static inline float clamp(float x, float min, float max) {
+    return MIN(max, MAX(min, x));
+}
+
 #endif

@@ -13,6 +13,7 @@ void setupChain(Chain* chain) {
         chain->nodes[i].radius = 0;
         chain->nodes[i].bounciness = 0.5f;
         chain->nodes[i].mass = 1.0f;
+        chain->nodes[i].isStatic = FALSE;
     }
 
     chain->nodes[0].radius = 100.0f;

@@ -12,6 +12,7 @@ typedef struct VerletBody {
     float mass;
     float radius;
     float bounciness;
+    int isStatic;
 } VerletBody;
 
 typedef struct ChainNode {
@@ -30,6 +31,14 @@ typedef struct Player {
     float movementSpeed;
     Vec2f movementControl;
 } Player;
+
+static inline VerletBody* player_getCharacter(Player* player) {
+    return &player->chain.nodes[0];
+}
+
+static inline VerletBody* player_getBoulder(Player* player) {
+    return &player->chain.nodes[player->chain.nodeCount - 1];
+}
 
 typedef struct Camera {
     Vec3f position;
