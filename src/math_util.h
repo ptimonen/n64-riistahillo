@@ -3,61 +3,116 @@
 
 #include <gu.h>
 
+typedef struct Vec2f {
+    float x;
+    float y;
+    float z;
+} Vec2f;
+
+static inline Vec2f add2f(Vec2f a, Vec2f b) {
+    a.x += b.x;
+    a.y += b.y;
+    return a;
+}
+
+static inline void addTo2f(Vec2f* a, Vec2f b) {
+    a->x += b.x;
+    a->y += b.y;
+}
+
+static inline Vec2f sub2f(Vec2f a, Vec2f b) {
+    a.x -= b.x;
+    a.y -= b.y;
+    return a;
+}
+
+static inline void subTo2f(Vec2f* a, Vec2f b) {
+    a->x -= b.x;
+    a->y -= b.y;
+}
+
+static inline Vec2f mul2f(Vec2f v, float s) {
+    v.x *= s;
+    v.y *= s;
+    return v;
+}
+
+static inline void mulTo2f(Vec2f* v, float s) {
+    v->x *= s;
+    v->y *= s;
+}
+
+static inline float length2f(Vec2f v) {
+    return sqrtf(v.x * v.x + v.y * v.y);
+}
+
+static inline Vec2f normalize2f(Vec2f v) {
+    return mul2f(v, 1.0f / length2f(v));
+}
+
+static inline void normalizeTo2f(Vec2f* v) {
+    mulTo2f(v, 1.0f / length2f(*v));
+}
+
+static inline float dot2f(Vec2f a, Vec2f b) {
+    return a.x * b.x + a.y * b.y;
+}
+
 typedef struct Vec3f {
     float x;
     float y;
     float z;
 } Vec3f;
 
-static inline Vec3f add(Vec3f a, Vec3f b) {
+static inline Vec3f add3f(Vec3f a, Vec3f b) {
     a.x += b.x;
     a.y += b.y;
     a.z += b.z;
     return a;
 }
 
-static inline void addTo(Vec3f* a, Vec3f b) {
+static inline void addTo3f(Vec3f* a, Vec3f b) {
     a->x += b.x;
     a->y += b.y;
     a->z += b.z;
 }
 
-static inline Vec3f sub(Vec3f a, Vec3f b) {
+static inline Vec3f sub3f(Vec3f a, Vec3f b) {
     a.x -= b.x;
     a.y -= b.y;
     a.z -= b.z;
     return a;
 }
 
-static inline void subTo(Vec3f* a, Vec3f b) {
+static inline void subTo3f(Vec3f* a, Vec3f b) {
     a->x -= b.x;
     a->y -= b.y;
     a->z -= b.z;
 }
 
-static inline Vec3f mul(Vec3f v, float s) {
+static inline Vec3f mul3f(Vec3f v, float s) {
     v.x *= s;
     v.y *= s;
     v.z *= s;
     return v;
 }
 
-static inline void mulTo(Vec3f* v, float s) {
+static inline void mulTo3f(Vec3f* v, float s) {
     v->x *= s;
     v->y *= s;
     v->z *= s;
 }
 
-static inline float length(Vec3f v) {
+static inline float length3f(Vec3f v) {
     return sqrtf(v.x * v.x + v.y * v.y + v.z * v.z);
 }
 
-static inline Vec3f normalize(Vec3f v) {
-    return mul(v, 1.0f / length(v));
+static inline Vec3f normalize3f(Vec3f v) {
+    return mul3f(v, 1.0f / length(v));
 }
 
-static inline void normalizeTo(Vec3f* v) {
-    mulTo(v, 1.0f / length(*v));
+static inline void normalizeTo3f(Vec3f* v) {
+    mulTo3f(v, 1.0f / length(*v));
 }
 
 #endif

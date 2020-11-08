@@ -2,24 +2,29 @@
 
 #include "game_state.h"
 
-void setupCharacter(Character* character) {
-    character->movementSpeed = 200;
-    character->position = (Vec3f){0, 0, 0};
-    character->velocity = (Vec3f){0, 0, 0};
+void setupChain(Chain* chain) {
+    int i;
+    chain->nodeCount = CHAIN_MAX_NODE_COUNT;
+    chain->segmentLength = 70;
+
+    for(i = 0; i < chain->nodeCount; ++i) {
+        chain->nodes[i].position = (Vec2f){0, -i * chain->segmentLength};
+        chain->nodes[i].oldPosition = chain->nodes[i].position;
+        chain->nodes[i].radius = 0;
+        chain->nodes[i].bounciness = 0.5f;
+        chain->nodes[i].mass = 1.0f;
+    }
+
+    chain->nodes[0].radius = 100.0f;
+    chain->nodes[0].mass = 100.0f;
+    chain->nodes[chain->nodeCount - 1].radius = 50.0f;
+    chain->nodes[chain->nodeCount - 1].mass = 20.0f;
 }
 
 void setupPlayer(Player* player) {
-    int i;
-
-    for (i = 0; i < PLAYER_CHAIN_NODE_COUNT; ++i) {
-        Vec3f segment = (Vec3f){0, PLAYER_CHAIN_SEGMENT_LENGTH, 0};
-        Vec3f position = add(player->character.position, mul(segment, i));
-
-        player->chainNodes[i].position = position;
-        player->chainNodes[i].oldPosition = position;
-    }
-
-    setupCharacter(&player->character);
+    player->movementSpeed = 20.0f;
+    player->movementControl = (Vec2f){0, 0};
+    setupChain(&player->chain);
 }
 
 void setupCamera(Camera* camera) {
@@ -28,13 +33,19 @@ void setupCamera(Camera* camera) {
     camera->up = (Vec3f){0.0f, 1.0f, 0.0f};
 }
 
-void setupGameState(GameState* gameState) {
-    gameState->timeAtGameLoopStart = 0.0f;
-    gameState->deltaTime = 0.0f;
-    gameState->hideMeshes = 0;
+void setupPhysics(Physics* physics) {
+    physics->verletConstraintIterations = 32;
+    physics->timeAtLastPhysicsUpdate = 0.0f;
+    physics->deltaTime = 0.0f;
+    physics->gravity = (Vec2f){0, -10};
+    physics->minBoundary = (Vec2f){-1200, -900};
+    physics->maxBoundary = (Vec2f){1200, 900};
+}
 
-    gameState->gravity = (Vec3f){0, -100, 0};
+void setupGameState(GameState* gameState) {
+    gameState->hideMeshes = 0;
 
     setupPlayer(&gameState->player);
     setupCamera(&gameState->camera);
+    setupPhysics(&gameState->physics);
 }

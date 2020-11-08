@@ -2,6 +2,8 @@
 
 #include <Assert.h>
 #include <nusys.h>
+#include <ultra64.h>
+#include <gbi.h>
 
 #include "models/placeholder_sphere/placeholder_sphere.h"
 #include "game_state.h"
@@ -23,19 +25,21 @@ void drawTexturedModel(Gfx* gfx) {
     gDPPipeSync(g_dl++);
 }
 
-void drawCharacter(GraphicsTask* graphicsTask, const Character* character) {
+void drawCharacter(GraphicsTask* graphicsTask, Vec2f position, float scale, int matrixIndex) {
     guPosition(
-        &graphicsTask->objectTransforms[0],
+        &graphicsTask->objectTransforms[matrixIndex],
         0, // roll
         0.0f, // pitch
         0.0f, // heading
-        1.0f, // scale
-        UNPACK(character->position)
+        scale,
+        position.x,
+        position.y,
+        0
     );
 
     gSPMatrix(
         g_dl++,
-        OS_K0_TO_PHYSICAL(&(graphicsTask->objectTransforms[0])),
+        OS_K0_TO_PHYSICAL(&graphicsTask->objectTransforms[matrixIndex]),
         G_MTX_MODELVIEW | G_MTX_PUSH | G_MTX_MUL
     );
 
@@ -44,35 +48,35 @@ void drawCharacter(GraphicsTask* graphicsTask, const Character* character) {
     gSPPopMatrix(g_dl++, G_MTX_MODELVIEW);
 }
 
-void drawChain(GraphicsTask* graphicsTask, ChainNode* chainNodes, int n) {
+void drawChain(GraphicsTask* graphicsTask, const Chain* chain) {
     static Vtx_t vertexBuffer[VERTEX_BUFFER_MAX_SIZE];
-    const int lineWidthHalfPx = 8;
+    const float thickness = 10;
     const int r = 200;
     const int g = 127;
     const int b = 0;
     const int a = 255;
     int i;
 
-    n = MIN(VERTEX_BUFFER_MAX_SIZE / 4, n);
+    int n = MIN(VERTEX_BUFFER_MAX_SIZE / 4, chain->nodeCount);
 
     for (i = 0; i < n - 1; ++i) {
-        Vec3f start = chainNodes[i].position;
-        Vec3f end = chainNodes[i + 1].position;
-        Vec3f delta = normalize(sub(end, start));
-        Vec3f perp = mul((Vec3f) {delta.y, -delta.x, 0}, 5);
+        Vec2f start = chain->nodes[i].position;
+        Vec2f end = chain->nodes[i + 1].position;
+        Vec2f delta = normalize2f(sub2f(end, start));
+        Vec2f normal = mul2f((Vec2f) {delta.y, -delta.x}, -0.5f * thickness);
 
-        Vec3f v0 = add(start, perp);
-        Vec3f v1 = sub(start, perp);
-        Vec3f v2 = add(end, perp);
-        Vec3f v3 = sub(end, perp);
+        Vec2f v0 = add2f(start, normal);
+        Vec2f v1 = sub2f(start, normal);
+        Vec2f v2 = add2f(end, normal);
+        Vec2f v3 = sub2f(end, normal);
 
-        vertexBuffer[i * 4 + 0] = (Vtx_t) {UNPACK(v0), 0, 0, 0, r, g, b, a};
-        vertexBuffer[i * 4 + 1] = (Vtx_t) {UNPACK(v1), 0, 0, 0, r, g, b, a};
-        vertexBuffer[i * 4 + 2] = (Vtx_t) {UNPACK(v2), 0, 0, 0, r, g, b, a};
-        vertexBuffer[i * 4 + 3] = (Vtx_t) {UNPACK(v3), 0, 0, 0, r, g, b, a};
+        vertexBuffer[i * 4 + 0] = (Vtx_t) {v0.x, v0.y, 0, 0, 0, 0, r, g, b, a};
+        vertexBuffer[i * 4 + 1] = (Vtx_t) {v1.x, v1.y, 0, 0, 0, 0, r, g, b, a};
+        vertexBuffer[i * 4 + 2] = (Vtx_t) {v2.x, v2.y, 0, 0, 0, 0, r, g, b, a};
+        vertexBuffer[i * 4 + 3] = (Vtx_t) {v3.x, v3.y, 0, 0, 0, 0, r, g, b, a};
     }
 
-    gSPVertex(g_dl++, vertexBuffer, n, 0);
+    gSPVertex(g_dl++, vertexBuffer, 4 * n, 0);
 
     for (i = 0; i < n - 1; ++i) {
         int x = i * 4;
@@ -80,9 +84,11 @@ void drawChain(GraphicsTask* graphicsTask, ChainNode* chainNodes, int n) {
     }
 }
 
-void drawPlayer(GraphicsTask* graphicsTask, Player* player) {
-    drawCharacter(graphicsTask, &player->character);
-    drawChain(graphicsTask, player->chainNodes, PLAYER_CHAIN_NODE_COUNT);
+void drawPlayer(GraphicsTask* graphicsTask, const Player* player) {
+    const Chain* chain = &player->chain;
+    drawCharacter(graphicsTask, chain->nodes[0].position, 1.0f, 0);
+    drawCharacter(graphicsTask, chain->nodes[chain->nodeCount - 1].position, 0.5f, 1);
+    drawChain(graphicsTask, &player->chain);
 }
 
 void drawDebugInfo() {
@@ -157,5 +163,5 @@ void render(struct GameState* gameState) {
     }
 
     endGraphicsTask(graphicsTask);
-    drawDebugInfo();
+    // drawDebugInfo();
 }
