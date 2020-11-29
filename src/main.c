@@ -3,11 +3,15 @@
 #include "globals.h"
 #include "game_loop.h"
 #include "game_setup.h"
+#include "audio.h"
 
 void mainproc(void)
 {
   // initialize the graphics system
   nuGfxInit();
+
+  // initialized audio system
+  initAudio();
 
   // initialize the controller manager
   nuContInit();

@@ -28,9 +28,32 @@ beginseg
 	include "$(ROOT)/usr/lib/PR/gspF3DEX2.NoN.fifo.o"
 	include "$(ROOT)/usr/lib/PR/gspF3DLX2.Rej.fifo.o"
 	include "$(ROOT)/usr/lib/PR/gspS2DEX2.fifo.o"
+	include "$(ROOT)/usr/lib/PR/aspMain.o"
+	include "$(ROOT)/usr/lib/PR/n_aspMain.o"
+endseg
+
+beginseg
+    name "bank_sfx_pbank"
+    flags RAW
+    include "src/audio/n64st1.ptr"
+endseg
+
+beginseg
+    name "bank_sfx_wbank"
+    flags RAW
+    include "src/audio/n64st1.wbk"
+endseg
+
+beginseg
+    name "bank_sfx_sfx"
+    flags RAW
+    include "src/audio/sfx.bfx"
 endseg
 
 beginwave
 	name	"riistahillo"
 	include	"code"
+    include "bank_sfx_pbank"
+    include "bank_sfx_wbank"
+    include "bank_sfx_sfx"
 endwave

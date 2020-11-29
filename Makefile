@@ -1,8 +1,10 @@
 include $(ROOT)/usr/include/make/PRdefs
 
-N64KITDIR    = c:\nintendo\n64kit
+N64KITDIR    = c:/nintendo/n64kit
 NUSYSINCDIR  = $(N64KITDIR)/nusys/include
 NUSYSLIBDIR  = $(N64KITDIR)/nusys/lib
+NUSTDINCDIR  = $(N64KITDIR)/nustd/include
+NUSTDLIBDIR  = $(N64KITDIR)/nustd/lib
 
 LIB = $(ROOT)/usr/lib
 LPR = $(LIB)/PR
@@ -11,10 +13,13 @@ CC  = gcc
 LD  = ld
 MAKEROM = mild
 
+NUAUDIOLIB = -lnualstl_n_d -ln_gmus_d -ln_gaudio_sc
+
 LCDEFS =	-DNU_DEBUG -DF3DEX_GBI_2
-LCINCS =	-I. -I./src -I$(NUSYSINCDIR) -I$(ROOT)/usr/include/PR
+LCINCS =	-I. -I./src -I$(NUSYSINCDIR) -I$(NUSTDINCDIR) -I$(ROOT)/usr/include/PR
 LCOPTS =	-G 0
-LDFLAGS = $(MKDEPOPT) -L$(LIB) -L$(NUSYSLIBDIR) -lnusys_d -lgultra_d -L$(GCCDIR)/mipse/lib -lkmc
+
+LDFLAGS = $(MKDEPOPT) -L$(LIB) -L$(NUSYSLIBDIR) -L$(NUSTDLIBDIR) $(NUAUDIOLIB) -lnustd_d -lnusys_d -lgultra_d -L$(GCCDIR)/mipse/lib -lkmc
 
 OPTIMIZER =	-g
 

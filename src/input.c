@@ -2,6 +2,7 @@
 
 #include <nusys.h>
 #include "game_state.h"
+#include "audio.h"
 
 void updateInput(struct GameState* gameState) {
     static NUContData controllerData;
@@ -32,5 +33,9 @@ void updateInput(struct GameState* gameState) {
         boulder->oldPosition = boulder->position;
     } else {
         player_getBoulder(player)->isStatic = FALSE;
+    }
+
+    if(controllerData.trigger & A_BUTTON) {
+        sndHandle = nuAuStlSndPlayerPlay(SND_DRUM);
     }
 }
