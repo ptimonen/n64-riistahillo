@@ -1,7 +1,7 @@
 # Blender v2.82 (sub 7) OBJ File: 'enemy.blend'
 # www.blender.org
 mtllib enemy.mtl
-o enemy_Plane
+g enemy_Plane
 v 7.741422 -25.528076 25.987730
 v 0.386905 33.265831 8.956440
 v 9.218336 -28.461531 19.906221

@@ -119,4 +119,8 @@ static inline float clamp(float x, float min, float max) {
     return MIN(max, MAX(min, x));
 }
 
+static inline float radToDeg(float radians) {
+   return radians / 3.141592f * 180.0f;
+}
+
 #endif

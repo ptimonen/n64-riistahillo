@@ -3,6 +3,6 @@
 
 #include "game_state.h"
 
-struct GameState g_gameState;
+ProgramState g_programState;
 
 #endif

@@ -50,3 +50,14 @@ void setupGameState(GameState* gameState) {
     setupCamera(&gameState->camera);
     setupPhysics(&gameState->physics);
 }
+
+void setupGameConfig(GameConfig* gameConfig) {
+    gameConfig->playerCount = 1;
+    gameConfig->gameMode = SURVIVAL;
+}
+
+void setupProgramState(ProgramState* programState) {
+    programState->activeScreen = MENU;
+    setupGameConfig(&programState->gameConfig);
+    setupGameState(&programState->gameState);
+}

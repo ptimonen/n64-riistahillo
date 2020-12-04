@@ -2,7 +2,9 @@
 #define INPUT_H
 
 struct GameState;
+struct ProgramState;
 
-void updateInput(struct GameState* gameState);
+void updateGameInput(struct GameState* gameState);
+void updateMenuInput(struct ProgramState* programState);
 
 #endif

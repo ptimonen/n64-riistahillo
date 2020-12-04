@@ -1,7 +1,7 @@
 # Blender v2.82 (sub 7) OBJ File: 'players.blend'
 # www.blender.org
 mtllib drum.mtl
-o drum_Cube.001
+g drum
 v -44.993359 -157.251007 35.081997
 v -17.162361 -185.082001 35.081997
 v -36.841850 -176.930496 35.081997

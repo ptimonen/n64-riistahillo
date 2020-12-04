@@ -4,8 +4,19 @@
 #include <nusys.h>
 #include <ultra64.h>
 #include <gbi.h>
+#include <math.h>
 
 #include "models/placeholder_sphere/placeholder_sphere.h"
+#include "models/players/mask_player_1.h"
+#include "models/players/drum.h"
+#include "models/menu/mode_battle.h"
+#include "models/menu/mode_survival.h"
+#include "models/menu/players_1.h"
+#include "models/menu/players_2.h"
+#include "models/menu/players_3.h"
+#include "models/menu/players_4.h"
+#include "models/menu/text_modes.h"
+#include "models/menu/text_players.h"
 #include "game_state.h"
 #include "graphics.h"
 
@@ -29,7 +40,7 @@ void drawCharacter(GraphicsTask* graphicsTask, Vec2f position, float scale, int 
     guPosition(
         &graphicsTask->objectTransforms[matrixIndex],
         0, // roll
-        0.0f, // pitch
+        -90.0f, // pitch
         0.0f, // heading
         scale,
         position.x,
@@ -43,10 +54,36 @@ void drawCharacter(GraphicsTask* graphicsTask, Vec2f position, float scale, int 
         G_MTX_MODELVIEW | G_MTX_PUSH | G_MTX_MUL
     );
 
-    drawTexturedModel(Wtx_placeholder_sphere);
+    drawTexturedModel(Wtx_mask_player_1);
 
     gSPPopMatrix(g_dl++, G_MTX_MODELVIEW);
 }
+
+void drawDrum(GraphicsTask* graphicsTask, Vec2f chainPosition, Vec2f position, float scale, int matrixIndex) {
+    Vec2f direction = sub2f(chainPosition, position);
+    float angle = radToDeg(atan2(direction.y, direction.x));
+    guPosition(
+        &graphicsTask->objectTransforms[matrixIndex],
+        angle, // roll
+        -90.0f, // pitch
+        0.0f, // heading
+        scale,
+        position.x,
+        position.y,
+        0
+    );
+
+    gSPMatrix(
+        g_dl++,
+        OS_K0_TO_PHYSICAL(&graphicsTask->objectTransforms[matrixIndex]),
+        G_MTX_MODELVIEW | G_MTX_PUSH | G_MTX_MUL
+    );
+
+    drawTexturedModel(Wtx_drum);
+
+    gSPPopMatrix(g_dl++, G_MTX_MODELVIEW);
+}
+
 
 void drawChain(GraphicsTask* graphicsTask, const Chain* chain) {
     static Vtx_t vertexBuffer[VERTEX_BUFFER_MAX_SIZE];
@@ -86,8 +123,8 @@ void drawChain(GraphicsTask* graphicsTask, const Chain* chain) {
 
 void drawPlayer(GraphicsTask* graphicsTask, const Player* player) {
     const Chain* chain = &player->chain;
-    drawCharacter(graphicsTask, chain->nodes[0].position, 1.0f, 0);
-    drawCharacter(graphicsTask, chain->nodes[chain->nodeCount - 1].position, 0.5f, 1);
+    drawCharacter(graphicsTask, chain->nodes[0].position, 1.5f, 0);
+    drawDrum(graphicsTask, chain->nodes[chain->nodeCount - 2].position, chain->nodes[chain->nodeCount - 1].position, 0.75f, 1);
     drawChain(graphicsTask, &player->chain);
 }
 
@@ -153,13 +190,60 @@ void endGraphicsTask(GraphicsTask* graphicsTask) {
     );
 }
 
-void render(struct GameState* gameState) {
-    GraphicsTask* graphicsTask = beginGraphicsTask();
-    loadProjectionMatrix(graphicsTask);
-    loadViewMatrix(graphicsTask, &gameState->camera);
-
+void renderGame(GraphicsTask* graphicsTask, struct GameState* gameState) {
     if (!gameState->hideMeshes) {
         drawPlayer(graphicsTask, &gameState->player);
+    }
+}
+
+void renderMenu(GraphicsTask* graphicsTask, struct GameConfig* gameConfig) {
+    const int matrixIndex = 0;
+
+    guPosition(
+        &graphicsTask->objectTransforms[matrixIndex],
+        0.0f, // roll
+        -90.0f, // pitch
+        0.0f, // heading
+        15.0f, // scale
+        0.0f, // x
+        0.0f, // y
+        0.0f  // z
+    );
+
+    gSPMatrix(
+        g_dl++,
+        OS_K0_TO_PHYSICAL(&graphicsTask->objectTransforms[matrixIndex]),
+        G_MTX_MODELVIEW | G_MTX_PUSH | G_MTX_MUL
+    );
+
+    if (gameConfig->gameMode == BATTLE) {
+        drawTexturedModel(Wtx_mode_battle);
+    } else {
+        drawTexturedModel(Wtx_mode_survival);
+    }
+    if (gameConfig->playerCount == 1) {
+        drawTexturedModel(Wtx_players_1);
+    } else if (gameConfig->playerCount == 2) {
+        drawTexturedModel(Wtx_players_2);
+    } else if (gameConfig->playerCount == 3) {
+        drawTexturedModel(Wtx_players_3);
+    } else {
+        drawTexturedModel(Wtx_players_4);
+    }
+    drawTexturedModel(Wtx_text_modes);
+
+    gSPPopMatrix(g_dl++, G_MTX_MODELVIEW);
+}
+
+void render(struct ProgramState* programState) {
+    GraphicsTask* graphicsTask = beginGraphicsTask();
+    loadProjectionMatrix(graphicsTask);
+    loadViewMatrix(graphicsTask, &programState->gameState.camera);
+
+    if (programState->activeScreen == GAME) {
+        renderGame(graphicsTask, &programState->gameState);
+    } else {
+        renderMenu(graphicsTask, &programState->gameConfig);
     }
 
     endGraphicsTask(graphicsTask);

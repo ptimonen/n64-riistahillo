@@ -4,7 +4,7 @@
 #include "game_state.h"
 #include "audio.h"
 
-void updateInput(struct GameState* gameState) {
+void updateGameInput(struct GameState* gameState) {
     static NUContData controllerData;
     Player* player = &gameState->player;
 
@@ -37,5 +37,27 @@ void updateInput(struct GameState* gameState) {
 
     if(controllerData.trigger & A_BUTTON) {
         sndHandle = nuAuStlSndPlayerPlay(SND_DRUM);
+    }
+}
+
+void updateMenuInput(struct ProgramState* programState) {
+    GameConfig* gameConfig = &programState->gameConfig;
+    static NUContData controllerData;
+    nuContDataGetEx(&controllerData, 0);
+
+    if (controllerData.trigger & L_JPAD && gameConfig->playerCount > 1) {
+        gameConfig->playerCount--;
+    }
+    if (controllerData.trigger & R_JPAD && gameConfig->playerCount < 4) {
+        gameConfig->playerCount++;
+    }
+    if (controllerData.trigger & U_JPAD) {
+        gameConfig->gameMode = SURVIVAL;
+    }
+    if (controllerData.trigger & D_JPAD) {
+        gameConfig->gameMode = BATTLE;
+    }
+    if (controllerData.trigger & A_BUTTON) {
+        programState->activeScreen = LOADING;
     }
 }

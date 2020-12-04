@@ -1,7 +1,7 @@
 # Blender v2.82 (sub 7) OBJ File: 'gui.blend'
 # www.blender.org
 mtllib heart_p4.mtl
-o heart_p4_Plane.003
+g heart_p4_Plane
 v 0.000000 -97.638329 10.355092
 v 1.653241 -97.000000 8.999999
 v 1.653241 -91.409920 9.559007

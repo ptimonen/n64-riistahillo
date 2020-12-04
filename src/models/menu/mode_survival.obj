@@ -1,7 +1,7 @@
 # Blender v2.82 (sub 7) OBJ File: 'menu.blend'
 # www.blender.org
 mtllib mode_survival.mtl
-o mode_survival_Circle.004
+g mode_survival
 v 7.548014 8.259356 -41.039951
 v 7.548015 11.844140 -40.326889
 v 7.548015 14.883174 -38.296272

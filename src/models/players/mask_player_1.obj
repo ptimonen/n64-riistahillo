@@ -1,7 +1,7 @@
 # Blender v2.82 (sub 7) OBJ File: 'players.blend'
 # www.blender.org
 mtllib mask_player_1.mtl
-o mask_player_1_Plane
+g mask_player
 v -0.000011 32.878178 29.755705
 v 0.296866 -25.528076 30.075935
 v 0.386905 22.444212 8.956440

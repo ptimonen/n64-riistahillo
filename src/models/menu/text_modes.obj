@@ -1,7 +1,7 @@
 # Blender v2.82 (sub 7) OBJ File: 'menu.blend'
 # www.blender.org
 mtllib text_modes.mtl
-o text_modes_Text.001
+g text_modes
 v 8.302650 -9.794012 -18.271763
 v 8.302650 -10.474739 -18.616920
 v 8.302650 -10.747458 -19.162361

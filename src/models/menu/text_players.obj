@@ -1,7 +1,7 @@
 # Blender v2.82 (sub 7) OBJ File: 'menu.blend'
 # www.blender.org
 mtllib text_players.mtl
-o text_players_Text
+g text_players
 v 6.372047 30.990433 -36.764435
 v 6.372044 37.663494 -37.186302
 v 6.372044 36.282860 -40.503654

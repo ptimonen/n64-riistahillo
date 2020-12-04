@@ -1,7 +1,7 @@
 # Blender v2.82 (sub 7) OBJ File: 'menu.blend'
 # www.blender.org
 mtllib players_2.mtl
-o players_2_Circle.001
+g players_2
 v 7.578171 32.241520 3.607781
 v 7.578172 35.826305 4.320841
 v 7.578172 38.865337 6.351460

@@ -17,7 +17,7 @@ void mainproc(void)
   nuContInit();
 
   // initialize the level
-  setupGameState(&g_gameState);
+  setupProgramState(&g_programState);
 
   // set the update+draw callback to be called every frame
   nuGfxFuncSet((NUGfxFunc)tick);

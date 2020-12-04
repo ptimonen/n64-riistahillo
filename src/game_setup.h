@@ -2,7 +2,9 @@
 #define GAME_SETUP_H
 
 struct GameState;
+struct ProgramState;
 
 void setupGameState(struct GameState* gameState);
+void setupProgramState(struct ProgramState* programState);
 
 #endif

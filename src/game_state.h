@@ -4,7 +4,7 @@
 #include "math_util.h"
 
 #define CHAIN_MAX_NODE_COUNT 8
-#define PLAYER_CHAIN_SEGMENT_LENGTH 200
+#define PLAYER_CHAIN_SEGMENT_LENGTH 150
 
 typedef struct VerletBody {
     Vec2f position;
@@ -61,5 +61,20 @@ typedef struct GameState {
     Camera camera;
     Physics physics;
 } GameState;
+
+typedef enum GameMode { SURVIVAL, BATTLE } GameMode;
+
+typedef struct GameConfig {
+    int playerCount;
+    GameMode gameMode;
+} GameConfig;
+
+typedef enum ScreenType { MENU, LOADING, GAME } ScreenType;
+
+typedef struct ProgramState {
+    ScreenType activeScreen;
+    GameConfig gameConfig;
+    GameState gameState;
+} ProgramState;
 
 #endif

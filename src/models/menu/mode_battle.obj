@@ -1,7 +1,7 @@
 # Blender v2.82 (sub 7) OBJ File: 'menu.blend'
 # www.blender.org
 mtllib mode_battle.mtl
-o mode_battle_Circle.005
+g mode_battle
 v 7.548014 -11.742331 -30.867027
 v 7.548015 -8.157547 -30.153965
 v 7.548015 -5.118513 -28.123350
