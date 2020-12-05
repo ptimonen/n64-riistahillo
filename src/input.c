@@ -57,6 +57,9 @@ void updateMenuInput(struct ProgramState* programState) {
     if (controllerData.trigger & D_JPAD) {
         gameConfig->gameMode = BATTLE;
     }
+    if(gameConfig->playerCount == 1 && gameConfig->gameMode == BATTLE) {
+        gameConfig->playerCount = 2;
+    }
     if (controllerData.trigger & A_BUTTON) {
         programState->activeScreen = LOADING;
     }

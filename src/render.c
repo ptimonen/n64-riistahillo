@@ -9,6 +9,7 @@
 #include "models/placeholder_sphere/placeholder_sphere.h"
 #include "models/players/mask_player_1.h"
 #include "models/players/drum.h"
+#include "models/menu/background.h"
 #include "models/menu/mode_battle.h"
 #include "models/menu/mode_survival.h"
 #include "models/menu/players_1.h"
@@ -28,7 +29,7 @@ void drawTexturedModel(Gfx* gfx) {
     gDPSetRenderMode(g_dl++, G_RM_AA_ZB_OPA_SURF, G_RM_AA_ZB_OPA_SURF2);
     gSPTexture(g_dl++, 0x8000, 0x8000, 0, 0, G_ON);
     gDPSetCombineMode(g_dl++, G_CC_MODULATEI, G_CC_MODULATEI);
-    gDPSetTextureFilter(g_dl++, G_TF_POINT);
+    gDPSetTextureFilter(g_dl++, G_TF_BILERP);
     gSPClearGeometryMode(g_dl++, 0xFFFFFFFF);
     gSPSetGeometryMode(g_dl++, G_SHADE | G_SHADING_SMOOTH | G_ZBUFFER);
 
@@ -216,6 +217,7 @@ void renderMenu(GraphicsTask* graphicsTask, struct GameConfig* gameConfig) {
         G_MTX_MODELVIEW | G_MTX_PUSH | G_MTX_MUL
     );
 
+    drawTexturedModel(Wtx_background);
     if (gameConfig->gameMode == BATTLE) {
         drawTexturedModel(Wtx_mode_battle);
     } else {
@@ -231,6 +233,7 @@ void renderMenu(GraphicsTask* graphicsTask, struct GameConfig* gameConfig) {
         drawTexturedModel(Wtx_players_4);
     }
     drawTexturedModel(Wtx_text_modes);
+    drawTexturedModel(Wtx_text_players);
 
     gSPPopMatrix(g_dl++, G_MTX_MODELVIEW);
 }
