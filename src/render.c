@@ -9,6 +9,7 @@
 #include "models/placeholder_sphere/placeholder_sphere.h"
 #include "models/players/mask_player_1.h"
 #include "models/players/drum.h"
+#include "models/level/level.h"
 #include "models/menu/background.h"
 #include "models/menu/mode_battle.h"
 #include "models/menu/mode_survival.h"
@@ -165,6 +166,28 @@ void drawHearts(GraphicsTask* graphicsTask, const Player* player, int matrixInde
     }
 }
 
+void drawLevel(GraphicsTask* graphicsTask, int matrixIndex)
+{
+    guPosition(
+            &graphicsTask->objectTransforms[matrixIndex],
+            0.0f, // roll
+            -90.0f, // pitch
+            0.0f, // heading
+            1.0f, // scale
+            0.0f,
+            0.0f,
+            0.0f
+    );
+
+    gSPMatrix(
+            g_dl++,
+            OS_K0_TO_PHYSICAL(&graphicsTask->objectTransforms[matrixIndex]),
+            G_MTX_MODELVIEW | G_MTX_PUSH | G_MTX_MUL
+    );
+    drawTexturedModel(Wtx_level);
+    gSPPopMatrix(g_dl++, G_MTX_MODELVIEW);
+}
+
 void drawPlayer(GraphicsTask* graphicsTask, const Player* player, int matrixIndex) {
     const Chain* chain = &player->chain;
     drawCharacter(graphicsTask, chain->nodes[0].position, 2.3f, matrixIndex);
@@ -237,6 +260,7 @@ void endGraphicsTask(GraphicsTask* graphicsTask) {
 
 void renderGame(GraphicsTask* graphicsTask, struct GameState* gameState) {
     if (!gameState->hideMeshes) {
+        drawLevel(graphicsTask, 20);
         for(i = 0; i < 4; ++i) {
             if (gameState->players[i].health > 0) {
                 drawPlayer(graphicsTask, &gameState->players[i], i);
