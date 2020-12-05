@@ -1,6 +1,6 @@
 #include "game_setup.h"
-
 #include "game_state.h"
+#include "globals.h"
 
 void setupChain(Chain* chain) {
     int i;
@@ -43,10 +43,18 @@ void setupPhysics(Physics* physics) {
     physics->maxBoundary = (Vec2f){1200, 900};
 }
 
-void setupGameState(GameState* gameState) {
+void setupGameState(GameState* gameState, GameConfig* gameConfig) {
     gameState->hideMeshes = 0;
-
-    setupPlayer(&gameState->player);
+    for(i = 0; i < 4; ++i) {
+        setupPlayer(&gameState->players[i]);
+        if((gameConfig->playerCount - 1) >= i ) {
+            gameState->players[i].health = 3;
+        }
+        else {
+            gameState->players[i].health = 0;
+        }
+        // TODO: Set proper start locations
+    }
     setupCamera(&gameState->camera);
     setupPhysics(&gameState->physics);
 }
@@ -59,5 +67,5 @@ void setupGameConfig(GameConfig* gameConfig) {
 void setupProgramState(ProgramState* programState) {
     programState->activeScreen = MENU;
     setupGameConfig(&programState->gameConfig);
-    setupGameState(&programState->gameState);
+    setupGameState(&programState->gameState, &programState->gameConfig);
 }

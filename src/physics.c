@@ -2,6 +2,7 @@
 
 #include "math_util.h"
 #include "game_state.h"
+#include "globals.h"
 
 #include <ultra64.h>
 #include <gu.h>
@@ -131,5 +132,9 @@ float updateDeltaTime(Physics* physics) {
 
 void updatePhysics(struct GameState* gameState) {
     updateDeltaTime(&gameState->physics);
-    updatePlayer(&gameState->player, &gameState->physics);
+    for(i = 0; i < 4; ++i) {
+        if (gameState->players[i].health > 0) {
+            updatePlayer(&gameState->players[i], &gameState->physics);
+        }
+    }
 }

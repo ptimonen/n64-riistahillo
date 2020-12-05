@@ -3,12 +3,21 @@
 #include <nusys.h>
 #include "game_state.h"
 #include "audio.h"
+#include "globals.h"
 
 void updateGameInput(struct GameState* gameState) {
-    static NUContData controllerData;
-    Player* player = &gameState->player;
+    for(i = 0; i < 4; ++i) {
+        if (gameState->players[i].health > 0) {
+            updatePlayerInput(gameState, i);
+        }
+    }
+}
 
-    nuContDataGetEx(&controllerData, 0);
+void updatePlayerInput(struct GameState* gameState, int playerIndex) {
+    static NUContData controllerData;
+    Player* player = &gameState->players[playerIndex];
+
+    nuContDataGetEx(&controllerData, playerIndex);
 
     // Values 61 and 63 based on nusys.h
     player->movementControl = (Vec2f) {

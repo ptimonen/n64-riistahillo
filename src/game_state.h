@@ -30,6 +30,7 @@ typedef struct Player {
     Chain chain; // First and last links correspond to player and boulder
     float movementSpeed;
     Vec2f movementControl;
+    int health;
 } Player;
 
 static inline VerletBody* player_getCharacter(Player* player) {
@@ -57,7 +58,7 @@ typedef struct Physics {
 
 typedef struct GameState {
     int hideMeshes;
-    Player player;
+    Player players[4];
     Camera camera;
     Physics physics;
 } GameState;

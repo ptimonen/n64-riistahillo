@@ -18,8 +18,13 @@
 #include "models/menu/players_4.h"
 #include "models/menu/text_modes.h"
 #include "models/menu/text_players.h"
+#include "models/gui/heart_p1.h"
+#include "models/gui/heart_p2.h"
+#include "models/gui/heart_p3.h"
+#include "models/gui/heart_p4.h"
 #include "game_state.h"
 #include "graphics.h"
+#include "globals.h"
 
 #define VERTEX_BUFFER_MAX_SIZE 32
 #define UNPACK(vec) vec.x, vec.y, vec.z
@@ -85,8 +90,8 @@ void drawDrum(GraphicsTask* graphicsTask, Vec2f chainPosition, Vec2f position, f
     gSPPopMatrix(g_dl++, G_MTX_MODELVIEW);
 }
 
-
-void drawChain(GraphicsTask* graphicsTask, const Chain* chain) {
+// TODO: Use vertexindex to draw all chains, index is same as player number 0-3
+void drawChain(GraphicsTask* graphicsTask, const Chain* chain, int vertexIndex) {
     static Vtx_t vertexBuffer[VERTEX_BUFFER_MAX_SIZE];
     const float thickness = 10;
     const int r = 200;
@@ -122,11 +127,51 @@ void drawChain(GraphicsTask* graphicsTask, const Chain* chain) {
     }
 }
 
-void drawPlayer(GraphicsTask* graphicsTask, const Player* player) {
+// TODO: Fix this, doesn't work yet
+void drawHearts(GraphicsTask* graphicsTask, const Player* player, int matrixIndex) {
+    float x = -1100.0f + (200.0f * matrixIndex);
+    float y = 800.0f;
+
+    for(i = 0; i < (player->health - 1); ++i) {
+        guPosition(
+                &graphicsTask->objectTransforms[matrixIndex + i],
+                0.0f, // roll
+                -90.0f, // pitch
+                0.0f, // heading
+                4.0f, // scale
+                x + (50.0f),
+                y,
+                100.0f
+        );
+
+        gSPMatrix(
+                g_dl++,
+                OS_K0_TO_PHYSICAL(&graphicsTask->objectTransforms[matrixIndex + i]),
+                G_MTX_MODELVIEW | G_MTX_PUSH | G_MTX_MUL
+        );
+
+        if(matrixIndex == 0) {
+            drawTexturedModel(Wtx_heart_p1);
+        }
+        else if(matrixIndex == 1) {
+            drawTexturedModel(Wtx_heart_p2);
+        }
+        else if(matrixIndex == 2) {
+            drawTexturedModel(Wtx_heart_p3);
+        }
+        else if(matrixIndex == 3) {
+            drawTexturedModel(Wtx_heart_p4);
+        }
+        gSPPopMatrix(g_dl++, G_MTX_MODELVIEW);
+    }
+}
+
+void drawPlayer(GraphicsTask* graphicsTask, const Player* player, int matrixIndex) {
     const Chain* chain = &player->chain;
-    drawCharacter(graphicsTask, chain->nodes[0].position, 1.5f, 0);
-    drawDrum(graphicsTask, chain->nodes[chain->nodeCount - 2].position, chain->nodes[chain->nodeCount - 1].position, 0.75f, 1);
-    drawChain(graphicsTask, &player->chain);
+    drawCharacter(graphicsTask, chain->nodes[0].position, 1.5f, matrixIndex);
+    drawDrum(graphicsTask, chain->nodes[chain->nodeCount - 2].position, chain->nodes[chain->nodeCount - 1].position, 0.75f, matrixIndex + 4);
+    drawChain(graphicsTask, &player->chain, matrixIndex);
+    //drawHearts(graphicsTask, player, matrixIndex + 8 + (matrixIndex * 3));
 }
 
 void drawDebugInfo() {
@@ -193,7 +238,11 @@ void endGraphicsTask(GraphicsTask* graphicsTask) {
 
 void renderGame(GraphicsTask* graphicsTask, struct GameState* gameState) {
     if (!gameState->hideMeshes) {
-        drawPlayer(graphicsTask, &gameState->player);
+        for(i = 0; i < 4; ++i) {
+            if (gameState->players[i].health > 0) {
+                drawPlayer(graphicsTask, &gameState->players[i], i);
+            }
+        }
     }
 }
 

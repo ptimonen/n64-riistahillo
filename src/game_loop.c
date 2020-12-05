@@ -12,7 +12,7 @@ void gameLoop() {
         updateMenuInput(programState);
     }
     if(programState->activeScreen == LOADING) {
-        setupGameState(&programState->gameState);
+        setupGameState(&programState->gameState, &programState->gameConfig);
         programState->activeScreen = GAME;
     }
     if(programState->activeScreen == GAME) {
