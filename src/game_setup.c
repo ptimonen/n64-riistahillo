@@ -47,6 +47,7 @@ void setupGameState(GameState* gameState, GameConfig* gameConfig) {
     gameState->hideMeshes = 0;
     for(i = 0; i < 4; ++i) {
         setupPlayer(&gameState->players[i]);
+        gameState->players[i].index = i;
         if((gameConfig->playerCount - 1) >= i ) {
             gameState->players[i].health = 3;
         }

@@ -31,6 +31,7 @@ typedef struct Player {
     float movementSpeed;
     Vec2f movementControl;
     int health;
+    int index;
 } Player;
 
 static inline VerletBody* player_getCharacter(Player* player) {

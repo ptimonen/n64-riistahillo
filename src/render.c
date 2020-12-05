@@ -90,8 +90,8 @@ void drawDrum(GraphicsTask* graphicsTask, Vec2f chainPosition, Vec2f position, f
     gSPPopMatrix(g_dl++, G_MTX_MODELVIEW);
 }
 
-// TODO: Use vertexindex to draw all chains, index is same as player number 0-3
-void drawChain(GraphicsTask* graphicsTask, const Chain* chain, int vertexIndex) {
+// TODO: Use player index to draw all chains
+void drawChain(GraphicsTask* graphicsTask, const Chain* chain, int playerIndex) {
     static Vtx_t vertexBuffer[VERTEX_BUFFER_MAX_SIZE];
     const float thickness = 10;
     const int r = 200;
@@ -127,19 +127,18 @@ void drawChain(GraphicsTask* graphicsTask, const Chain* chain, int vertexIndex) 
     }
 }
 
-// TODO: Fix this, doesn't work yet
 void drawHearts(GraphicsTask* graphicsTask, const Player* player, int matrixIndex) {
-    float x = -1100.0f + (200.0f * matrixIndex);
+    float x = -1100.0f + (525.0f * player->index);
     float y = 800.0f;
 
-    for(i = 0; i < (player->health - 1); ++i) {
+    for(i = 0; i < player->health; ++i) {
         guPosition(
                 &graphicsTask->objectTransforms[matrixIndex + i],
                 0.0f, // roll
                 -90.0f, // pitch
                 0.0f, // heading
                 4.0f, // scale
-                x + (50.0f),
+                x + (125.0f * i),
                 y,
                 100.0f
         );
@@ -150,16 +149,16 @@ void drawHearts(GraphicsTask* graphicsTask, const Player* player, int matrixInde
                 G_MTX_MODELVIEW | G_MTX_PUSH | G_MTX_MUL
         );
 
-        if(matrixIndex == 0) {
+        if(player->index == 0) {
             drawTexturedModel(Wtx_heart_p1);
         }
-        else if(matrixIndex == 1) {
+        else if(player->index == 1) {
             drawTexturedModel(Wtx_heart_p2);
         }
-        else if(matrixIndex == 2) {
+        else if(player->index == 2) {
             drawTexturedModel(Wtx_heart_p3);
         }
-        else if(matrixIndex == 3) {
+        else {
             drawTexturedModel(Wtx_heart_p4);
         }
         gSPPopMatrix(g_dl++, G_MTX_MODELVIEW);
@@ -168,10 +167,10 @@ void drawHearts(GraphicsTask* graphicsTask, const Player* player, int matrixInde
 
 void drawPlayer(GraphicsTask* graphicsTask, const Player* player, int matrixIndex) {
     const Chain* chain = &player->chain;
-    drawCharacter(graphicsTask, chain->nodes[0].position, 1.5f, matrixIndex);
-    drawDrum(graphicsTask, chain->nodes[chain->nodeCount - 2].position, chain->nodes[chain->nodeCount - 1].position, 0.75f, matrixIndex + 4);
-    drawChain(graphicsTask, &player->chain, matrixIndex);
-    //drawHearts(graphicsTask, player, matrixIndex + 8 + (matrixIndex * 3));
+    drawCharacter(graphicsTask, chain->nodes[0].position, 2.3f, matrixIndex);
+    drawDrum(graphicsTask, chain->nodes[chain->nodeCount - 2].position, chain->nodes[chain->nodeCount - 1].position, 2.0f, matrixIndex + 4);
+    drawChain(graphicsTask, &player->chain, player->index);
+    //drawHearts(graphicsTask, player, matrixIndex + 8 + (player->index * 3));
 }
 
 void drawDebugInfo() {

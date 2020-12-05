@@ -117,9 +117,10 @@ void updatePlayer(Player* player, const Physics* physics) {
     for (i = 0; i < physics->verletConstraintIterations; ++i) {
         constrainChain(&player->chain, physics);
         constrainColliders(player_getCharacter(player), player_getBoulder(player), physics);
-        for (j = 0; j < player->chain.nodeCount; ++j) {
-            constrainVerletBody(&player->chain.nodes[j], physics);
-        }
+        constrainVerletBody(player_getCharacter(player), physics);
+        //for (j = 0; j < player->chain.nodeCount; ++j) {
+        //    constrainVerletBody(&player->chain.nodes[j], physics);
+        //}
     }
 }
 

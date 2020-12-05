@@ -8,16 +8,15 @@
 void updateGameInput(struct GameState* gameState) {
     for(i = 0; i < 4; ++i) {
         if (gameState->players[i].health > 0) {
-            updatePlayerInput(gameState, i);
+            updatePlayerInput(&gameState->players[i]);
         }
     }
 }
 
-void updatePlayerInput(struct GameState* gameState, int playerIndex) {
+void updatePlayerInput(struct Player* player) {
     static NUContData controllerData;
-    Player* player = &gameState->players[playerIndex];
 
-    nuContDataGetEx(&controllerData, playerIndex);
+    nuContDataGetEx(&controllerData, player->index);
 
     // Values 61 and 63 based on nusys.h
     player->movementControl = (Vec2f) {
