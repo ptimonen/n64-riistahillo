@@ -132,6 +132,7 @@ float updateDeltaTime(Physics* physics) {
 }
 
 void updatePhysics(struct GameState* gameState) {
+    int i;
     updateDeltaTime(&gameState->physics);
     for(i = 0; i < 4; ++i) {
         if (gameState->players[i].health > 0) {

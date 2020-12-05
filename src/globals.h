@@ -4,6 +4,5 @@
 #include "game_state.h"
 
 ProgramState g_programState;
-int i;
 
 #endif

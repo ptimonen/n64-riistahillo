@@ -10,11 +10,13 @@
 #define MAX_GRAPHICS_TASKS 2
 #define MAX_DISPLAY_LIST_COMMANDS 2048
 #define MAX_OBJECTS 20
+#define MAX_VERTEX_BUFFERS 4
 
 #define FOVY 45
 #define ASPECT (f32)SCREEN_WD/(f32)SCREEN_HT
 #define NEAR_PLANE 30
 #define FAR_PLANE 3000
+#define VERTEX_BUFFER_MAX_SIZE 32
 
 // a struct to hold graphics data used by the RCP which can change at runtime
 typedef struct GraphicsTask {
@@ -22,6 +24,9 @@ typedef struct GraphicsTask {
   Mtx modelview;
   Mtx objectTransforms[MAX_OBJECTS];
   Gfx displayList[MAX_DISPLAY_LIST_COMMANDS];
+  Vtx_t vertexBuffers[MAX_VERTEX_BUFFERS][VERTEX_BUFFER_MAX_SIZE];
+  int matrixIndex;
+  int vertexBufferIndex;
 } GraphicsTask;
 
 Gfx* g_dl;

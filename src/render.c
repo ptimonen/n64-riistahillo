@@ -26,25 +26,30 @@
 #include "graphics.h"
 #include "globals.h"
 
-#define VERTEX_BUFFER_MAX_SIZE 32
 #define UNPACK(vec) vec.x, vec.y, vec.z
 
 void drawTexturedModel(Gfx* gfx) {
-    gDPSetCycleType(g_dl++, G_CYC_1CYCLE);
-    gDPSetRenderMode(g_dl++, G_RM_AA_ZB_OPA_SURF, G_RM_AA_ZB_OPA_SURF2);
-    gSPTexture(g_dl++, 0x8000, 0x8000, 0, 0, G_ON);
-    gDPSetCombineMode(g_dl++, G_CC_MODULATEI, G_CC_MODULATEI);
-    gDPSetTextureFilter(g_dl++, G_TF_BILERP);
-    gSPClearGeometryMode(g_dl++, 0xFFFFFFFF);
-    gSPSetGeometryMode(g_dl++, G_SHADE | G_SHADING_SMOOTH | G_ZBUFFER);
-
     gSPDisplayList(g_dl++, gfx);
     gDPPipeSync(g_dl++);
 }
 
-void drawCharacter(GraphicsTask* graphicsTask, Vec2f position, float scale, int matrixIndex) {
-    guPosition(
-        &graphicsTask->objectTransforms[matrixIndex],
+void pushTransform(GraphicsTask* graphicsTask, float roll, float pitch, float heading, float scale, float x, float y, float z) {
+    guPosition(&graphicsTask->objectTransforms[graphicsTask->matrixIndex], roll, pitch, heading, scale, x, y, z);
+    gSPMatrix(
+        g_dl++,
+        OS_K0_TO_PHYSICAL(&graphicsTask->objectTransforms[graphicsTask->matrixIndex]),
+        G_MTX_MODELVIEW | G_MTX_PUSH | G_MTX_MUL
+    );
+    ++graphicsTask->matrixIndex;
+}
+
+void popTransform() {
+    gSPPopMatrix(g_dl++, G_MTX_MODELVIEW);
+}
+
+void drawCharacter(GraphicsTask* graphicsTask, Vec2f position, float scale) {
+    pushTransform(
+        graphicsTask,
         0, // roll
         -90.0f, // pitch
         0.0f, // heading
@@ -54,22 +59,16 @@ void drawCharacter(GraphicsTask* graphicsTask, Vec2f position, float scale, int 
         0
     );
 
-    gSPMatrix(
-        g_dl++,
-        OS_K0_TO_PHYSICAL(&graphicsTask->objectTransforms[matrixIndex]),
-        G_MTX_MODELVIEW | G_MTX_PUSH | G_MTX_MUL
-    );
-
     drawTexturedModel(Wtx_mask_player_1);
 
-    gSPPopMatrix(g_dl++, G_MTX_MODELVIEW);
+    popTransform();
 }
 
-void drawDrum(GraphicsTask* graphicsTask, Vec2f chainPosition, Vec2f position, float scale, int matrixIndex) {
+void drawDrum(GraphicsTask* graphicsTask, Vec2f chainPosition, Vec2f position, float scale) {
     Vec2f direction = sub2f(chainPosition, position);
     float angle = radToDeg(atan2(direction.y, direction.x));
-    guPosition(
-        &graphicsTask->objectTransforms[matrixIndex],
+    pushTransform(
+        graphicsTask,
         angle, // roll
         -90.0f, // pitch
         0.0f, // heading
@@ -79,28 +78,21 @@ void drawDrum(GraphicsTask* graphicsTask, Vec2f chainPosition, Vec2f position, f
         0
     );
 
-    gSPMatrix(
-        g_dl++,
-        OS_K0_TO_PHYSICAL(&graphicsTask->objectTransforms[matrixIndex]),
-        G_MTX_MODELVIEW | G_MTX_PUSH | G_MTX_MUL
-    );
-
     drawTexturedModel(Wtx_drum);
 
-    gSPPopMatrix(g_dl++, G_MTX_MODELVIEW);
+    popTransform();
 }
 
 // TODO: Use player index to draw all chains
-void drawChain(GraphicsTask* graphicsTask, const Chain* chain, int playerIndex) {
-    static Vtx_t vertexBuffer[VERTEX_BUFFER_MAX_SIZE];
+void drawChain(GraphicsTask* graphicsTask, const Chain* chain) {
+    Vtx_t* vertexBuffer = graphicsTask->vertexBuffers[graphicsTask->vertexBufferIndex];
     const float thickness = 10;
     const int r = 200;
     const int g = 127;
     const int b = 0;
     const int a = 255;
-    int i;
-
     int n = MIN(VERTEX_BUFFER_MAX_SIZE / 4, chain->nodeCount);
+    int i;
 
     for (i = 0; i < n - 1; ++i) {
         Vec2f start = chain->nodes[i].position;
@@ -125,15 +117,18 @@ void drawChain(GraphicsTask* graphicsTask, const Chain* chain, int playerIndex) 
         int x = i * 4;
         gSP2Triangles(g_dl++, x + 0, x + 1, x + 2, 0, x + 2, x + 1, x + 3, 0);
     }
+
+    ++graphicsTask->vertexBufferIndex;
 }
 
-void drawHearts(GraphicsTask* graphicsTask, const Player* player, int matrixIndex) {
+void drawHearts(GraphicsTask* graphicsTask, const Player* player) {
     float x = -1100.0f + (525.0f * player->index);
     float y = 800.0f;
+    int i;
 
     for(i = 0; i < player->health; ++i) {
-        guPosition(
-                &graphicsTask->objectTransforms[matrixIndex + i],
+        pushTransform(
+                graphicsTask,
                 0.0f, // roll
                 -90.0f, // pitch
                 0.0f, // heading
@@ -143,14 +138,8 @@ void drawHearts(GraphicsTask* graphicsTask, const Player* player, int matrixInde
                 100.0f
         );
 
-        gSPMatrix(
-                g_dl++,
-                OS_K0_TO_PHYSICAL(&graphicsTask->objectTransforms[matrixIndex + i]),
-                G_MTX_MODELVIEW | G_MTX_PUSH | G_MTX_MUL
-        );
-
         if(player->index == 0) {
-            drawTexturedModel(Wtx_heart_p1);
+             drawTexturedModel(Wtx_heart_p1);
         }
         else if(player->index == 1) {
             drawTexturedModel(Wtx_heart_p2);
@@ -161,16 +150,16 @@ void drawHearts(GraphicsTask* graphicsTask, const Player* player, int matrixInde
         else {
             drawTexturedModel(Wtx_heart_p4);
         }
-        gSPPopMatrix(g_dl++, G_MTX_MODELVIEW);
+        popTransform();
     }
 }
 
-void drawPlayer(GraphicsTask* graphicsTask, const Player* player, int matrixIndex) {
+void drawPlayer(GraphicsTask* graphicsTask, const Player* player) {
     const Chain* chain = &player->chain;
-    drawCharacter(graphicsTask, chain->nodes[0].position, 2.3f, matrixIndex);
-    drawDrum(graphicsTask, chain->nodes[chain->nodeCount - 2].position, chain->nodes[chain->nodeCount - 1].position, 2.0f, matrixIndex + 4);
-    drawChain(graphicsTask, &player->chain, player->index);
-    //drawHearts(graphicsTask, player, matrixIndex + 8 + (player->index * 3));
+    drawCharacter(graphicsTask, chain->nodes[0].position, 2.3f);
+    drawDrum(graphicsTask, chain->nodes[chain->nodeCount - 2].position, chain->nodes[chain->nodeCount - 1].position, 2.0f);
+    drawChain(graphicsTask, &player->chain);
+    drawHearts(graphicsTask, player);
 }
 
 void drawDebugInfo() {
@@ -236,20 +225,19 @@ void endGraphicsTask(GraphicsTask* graphicsTask) {
 }
 
 void renderGame(GraphicsTask* graphicsTask, struct GameState* gameState) {
+    int i;
     if (!gameState->hideMeshes) {
         for(i = 0; i < 4; ++i) {
             if (gameState->players[i].health > 0) {
-                drawPlayer(graphicsTask, &gameState->players[i], i);
+                drawPlayer(graphicsTask, &gameState->players[i]);
             }
         }
     }
 }
 
 void renderMenu(GraphicsTask* graphicsTask, struct GameConfig* gameConfig) {
-    const int matrixIndex = 0;
-
-    guPosition(
-        &graphicsTask->objectTransforms[matrixIndex],
+    pushTransform(
+        graphicsTask,
         0.0f, // roll
         -90.0f, // pitch
         0.0f, // heading
@@ -257,12 +245,6 @@ void renderMenu(GraphicsTask* graphicsTask, struct GameConfig* gameConfig) {
         0.0f, // x
         0.0f, // y
         0.0f  // z
-    );
-
-    gSPMatrix(
-        g_dl++,
-        OS_K0_TO_PHYSICAL(&graphicsTask->objectTransforms[matrixIndex]),
-        G_MTX_MODELVIEW | G_MTX_PUSH | G_MTX_MUL
     );
 
     drawTexturedModel(Wtx_background);
@@ -283,13 +265,25 @@ void renderMenu(GraphicsTask* graphicsTask, struct GameConfig* gameConfig) {
     drawTexturedModel(Wtx_text_modes);
     drawTexturedModel(Wtx_text_players);
 
-    gSPPopMatrix(g_dl++, G_MTX_MODELVIEW);
+    popTransform();
+}
+
+void setRenderAttributes() {
+    gDPSetCycleType(g_dl++, G_CYC_1CYCLE);
+    gDPSetRenderMode(g_dl++, G_RM_AA_ZB_OPA_SURF, G_RM_AA_ZB_OPA_SURF2);
+    gDPSetCombineMode(g_dl++, G_CC_MODULATEI, G_CC_MODULATEI);
+    gDPSetTextureFilter(g_dl++, G_TF_BILERP);
+    gSPTexture(g_dl++, 0x8000, 0x8000, 0, 0, G_ON);
+    gSPClearGeometryMode(g_dl++, 0xFFFFFFFF);
+    gSPSetGeometryMode(g_dl++, G_SHADE | G_SHADING_SMOOTH | G_ZBUFFER);
+    gDPPipeSync(g_dl++);
 }
 
 void render(struct ProgramState* programState) {
     GraphicsTask* graphicsTask = beginGraphicsTask();
     loadProjectionMatrix(graphicsTask);
     loadViewMatrix(graphicsTask, &programState->gameState.camera);
+    setRenderAttributes();
 
     if (programState->activeScreen == GAME) {
         renderGame(graphicsTask, &programState->gameState);

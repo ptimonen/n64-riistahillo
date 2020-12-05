@@ -13,6 +13,8 @@ GraphicsTask *gfxSwitchTask() {
     g_graphicsTaskNum = (g_graphicsTaskNum + 1) % MAX_GRAPHICS_TASKS;
     nextTask = &g_graphicsTasks[g_graphicsTaskNum];
     g_dl = &nextTask->displayList[0];
+    nextTask->matrixIndex = 0;
+    nextTask->vertexBufferIndex = 0;
     return nextTask;
 }
 

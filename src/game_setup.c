@@ -44,6 +44,7 @@ void setupPhysics(Physics* physics) {
 }
 
 void setupGameState(GameState* gameState, GameConfig* gameConfig) {
+    int i;
     gameState->hideMeshes = 0;
     for(i = 0; i < 4; ++i) {
         setupPlayer(&gameState->players[i]);

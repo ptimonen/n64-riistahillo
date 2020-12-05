@@ -6,6 +6,7 @@
 #include "globals.h"
 
 void updateGameInput(struct GameState* gameState) {
+    int i;
     for(i = 0; i < 4; ++i) {
         if (gameState->players[i].health > 0) {
             updatePlayerInput(&gameState->players[i]);
