@@ -410,10 +410,27 @@ void setRenderAttributes() {
 }
 
 void render(struct ProgramState* programState) {
+    float addScreenShake;
     GraphicsTask* graphicsTask = beginGraphicsTask();
     loadProjectionMatrix(graphicsTask);
     loadViewMatrix(graphicsTask, &programState->gameState.camera);
     setRenderAttributes();
+
+    if(programState->gameState.camera.screenShake > 0) {
+        programState->gameState.camera.screenShake -= 2000.0f * programState->gameState.physics.deltaTime;
+    }
+    else {
+        programState->gameState.camera.screenShake = 0.0f;
+    }
+
+    // Get random between -1 and 1, multiply it with screen shake amount
+    addScreenShake = -1.0f + ((float)RAND(200) / 100.0f);
+    addScreenShake *= programState->gameState.camera.screenShake;
+
+    programState->gameState.camera.position =
+            (Vec3f){programState->gameState.camera.startPosition.x,
+                    programState->gameState.camera.startPosition.y + addScreenShake,
+                    programState->gameState.camera.startPosition.z};
 
     if (programState->activeScreen == GAME) {
         renderGame(graphicsTask, &programState->gameState);

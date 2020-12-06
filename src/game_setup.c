@@ -30,7 +30,8 @@ void setupPlayer(Player* player) {
 }
 
 void setupCamera(Camera* camera) {
-    camera->position = (Vec3f){0.0f, 0.0f, 2400.0f};
+    camera->startPosition = (Vec3f){0.0f, 0.0f, 2400.0f};
+    camera->position = camera->startPosition;
     camera->target = (Vec3f){0.0f, 0.0f, 0.0f};
     camera->up = (Vec3f){0.0f, 1.0f, 0.0f};
 }

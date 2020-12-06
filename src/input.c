@@ -51,6 +51,7 @@ void updatePlayerInput(struct ProgramState* programState, struct Player* player)
 
     if(controllerData.trigger & A_BUTTON) {
         sndHandle = nuAuStlSndPlayerPlay(SND_DRUM);
+        programState->gameState.camera.screenShake = 400;
     }
 }
 

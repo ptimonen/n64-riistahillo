@@ -44,9 +44,11 @@ static inline VerletBody* player_getBoulder(Player* player) {
 }
 
 typedef struct Camera {
+    Vec3f startPosition;
     Vec3f position;
     Vec3f target;
     Vec3f up;
+    float screenShake;
 } Camera;
 
 typedef struct Physics {
