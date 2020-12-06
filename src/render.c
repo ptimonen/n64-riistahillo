@@ -300,23 +300,102 @@ void renderMenu(GraphicsTask* graphicsTask, struct GameConfig* gameConfig) {
     popTransform();
 }
 
-void renderEnd(GraphicsTask* graphicsTask, struct GameConfig* gameConfig) {
+void drawOneNumber(int number)
+{
+    if(number == 0) {
+        drawTexturedModel(Wtx_number_0);
+    }
+    else if(number == 1) {
+        drawTexturedModel(Wtx_number_1);
+    }
+    else if(number == 2) {
+        drawTexturedModel(Wtx_number_2);
+    }
+    else if(number == 3) {
+        drawTexturedModel(Wtx_number_3);
+    }
+    else if(number == 4) {
+        drawTexturedModel(Wtx_number_4);
+    }
+    else if(number == 5) {
+        drawTexturedModel(Wtx_number_5);
+    }
+    else if(number == 6) {
+        drawTexturedModel(Wtx_number_6);
+    }
+    else if(number == 7) {
+        drawTexturedModel(Wtx_number_7);
+    }
+    else if(number == 8) {
+        drawTexturedModel(Wtx_number_8);
+    }
+    else if(number == 9) {
+        drawTexturedModel(Wtx_number_9);
+    }
+}
+
+void drawScore(GraphicsTask* graphicsTask, Player* player)
+{
+    int i = 0;
+    int score = player->score;
+    if(score == 0) {
+        int digit = score % 10;
+        pushTransform(
+                graphicsTask,
+                0.0f,
+                -90.0f,
+                0.0f,
+                15.0f,
+                200.0f,
+                170.0f - (228.0f * player->index),
+                0.0f
+        );
+        drawOneNumber(0);
+        popTransform();
+    }
+    else {
+        while (score > 0) {
+            int digit = score % 10;
+            pushTransform(
+                    graphicsTask,
+                    0.0f,
+                    -90.0f,
+                    0.0f,
+                    15.0f,
+                    200.0f - (100.0f * i),
+                    170.0f - (228.0f * player->index),
+                    0.0f
+            );
+            drawOneNumber(digit);
+            popTransform();
+
+            score /= 10;
+            ++i;
+        }
+    }
+}
+
+void renderEnd(GraphicsTask* graphicsTask, struct GameState* gameState) {
+    int i;
+
     pushTransform(
             graphicsTask,
-            0.0f, // roll
-            -90.0f, // pitch
-            0.0f, // heading
-            15.0f, // scale
-            0.0f, // x
-            0.0f, // y
-            0.0f  // z
+            0.0f,
+            -90.0f,
+            0.0f,
+            15.0f,
+            0.0f,
+            0.0f,
+            0.0f
     );
-
     drawTexturedModel(Wtx_end_background);
     drawTexturedModel(Wtx_text_score);
     drawTexturedModel(Wtx_text_scores);
-
     popTransform();
+
+    for(i = 0; i < 4; ++i) {
+        drawScore(graphicsTask, &gameState->players[i]);
+    }
 }
 
 void setRenderAttributes() {
@@ -342,7 +421,7 @@ void render(struct ProgramState* programState) {
         renderMenu(graphicsTask, &programState->gameConfig);
     }
     else {
-        renderEnd(graphicsTask, &programState->gameConfig);
+        renderEnd(graphicsTask, &programState->gameState);
     }
 
     endGraphicsTask(graphicsTask);
