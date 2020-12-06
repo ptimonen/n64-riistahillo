@@ -155,10 +155,10 @@ void drawHearts(GraphicsTask* graphicsTask, const Player* player) {
     }
 }
 
-void drawLevel(GraphicsTask* graphicsTask, int matrixIndex)
+void drawLevel(GraphicsTask* graphicsTask)
 {
-    guPosition(
-            &graphicsTask->objectTransforms[matrixIndex],
+    pushTransform(
+            graphicsTask,
             0.0f, // roll
             -90.0f, // pitch
             0.0f, // heading
@@ -168,13 +168,8 @@ void drawLevel(GraphicsTask* graphicsTask, int matrixIndex)
             0.0f
     );
 
-    gSPMatrix(
-            g_dl++,
-            OS_K0_TO_PHYSICAL(&graphicsTask->objectTransforms[matrixIndex]),
-            G_MTX_MODELVIEW | G_MTX_PUSH | G_MTX_MUL
-    );
     drawTexturedModel(Wtx_level);
-    gSPPopMatrix(g_dl++, G_MTX_MODELVIEW);
+    popTransform();
 }
 
 void drawPlayer(GraphicsTask* graphicsTask, const Player* player) {
@@ -250,7 +245,7 @@ void endGraphicsTask(GraphicsTask* graphicsTask) {
 void renderGame(GraphicsTask* graphicsTask, struct GameState* gameState) {
     int i;
     if (!gameState->hideMeshes) {
-        drawLevel(graphicsTask, 20);
+        drawLevel(graphicsTask);
         for(i = 0; i < 4; ++i) {
             if (gameState->players[i].health > 0) {
                 drawPlayer(graphicsTask, &gameState->players[i]);
