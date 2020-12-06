@@ -26,6 +26,7 @@ void setupPlayer(Player* player) {
     player->movementSpeed = 20.0f;
     player->movementControl = (Vec2f){0, 0};
     setupChain(&player->chain);
+    player->score = 0;
 }
 
 void setupCamera(Camera* camera) {

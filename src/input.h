@@ -5,8 +5,9 @@ struct GameState;
 struct Player;
 struct ProgramState;
 
-void updateGameInput(struct GameState* gameState);
-void updatePlayerInput(struct Player* player);
+void updateGameInput(struct ProgramState* programState);
+void updatePlayerInput(struct ProgramState* programState, struct Player* player);
 void updateMenuInput(struct ProgramState* programState);
+void updateEndInput(struct ProgramState* programState);
 
 #endif

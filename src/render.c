@@ -23,6 +23,19 @@
 #include "models/gui/heart_p2.h"
 #include "models/gui/heart_p3.h"
 #include "models/gui/heart_p4.h"
+#include "models/end/end_background.h"
+#include "models/end/number_0.h"
+#include "models/end/number_1.h"
+#include "models/end/number_2.h"
+#include "models/end/number_3.h"
+#include "models/end/number_4.h"
+#include "models/end/number_5.h"
+#include "models/end/number_6.h"
+#include "models/end/number_7.h"
+#include "models/end/number_8.h"
+#include "models/end/number_9.h"
+#include "models/end/text_score.h"
+#include "models/end/text_scores.h"
 #include "game_state.h"
 #include "graphics.h"
 #include "globals.h"
@@ -287,6 +300,25 @@ void renderMenu(GraphicsTask* graphicsTask, struct GameConfig* gameConfig) {
     popTransform();
 }
 
+void renderEnd(GraphicsTask* graphicsTask, struct GameConfig* gameConfig) {
+    pushTransform(
+            graphicsTask,
+            0.0f, // roll
+            -90.0f, // pitch
+            0.0f, // heading
+            15.0f, // scale
+            0.0f, // x
+            0.0f, // y
+            0.0f  // z
+    );
+
+    drawTexturedModel(Wtx_end_background);
+    drawTexturedModel(Wtx_text_score);
+    drawTexturedModel(Wtx_text_scores);
+
+    popTransform();
+}
+
 void setRenderAttributes() {
     gDPSetCycleType(g_dl++, G_CYC_1CYCLE);
     gDPSetRenderMode(g_dl++, G_RM_AA_ZB_OPA_SURF, G_RM_AA_ZB_OPA_SURF2);
@@ -306,8 +338,11 @@ void render(struct ProgramState* programState) {
 
     if (programState->activeScreen == GAME) {
         renderGame(graphicsTask, &programState->gameState);
-    } else {
+    } else if(programState->activeScreen == MENU) {
         renderMenu(graphicsTask, &programState->gameConfig);
+    }
+    else {
+        renderEnd(graphicsTask, &programState->gameConfig);
     }
 
     endGraphicsTask(graphicsTask);

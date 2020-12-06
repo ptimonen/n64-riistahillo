@@ -32,6 +32,7 @@ typedef struct Player {
     Vec2f movementControl;
     int health;
     int index;
+    int score;
 } Player;
 
 static inline VerletBody* player_getCharacter(Player* player) {
@@ -71,7 +72,7 @@ typedef struct GameConfig {
     GameMode gameMode;
 } GameConfig;
 
-typedef enum ScreenType { MENU, LOADING, GAME } ScreenType;
+typedef enum ScreenType { MENU, LOADING, GAME, END } ScreenType;
 
 typedef struct ProgramState {
     ScreenType activeScreen;

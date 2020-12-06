@@ -16,8 +16,11 @@ void gameLoop() {
         programState->activeScreen = GAME;
     }
     if(programState->activeScreen == GAME) {
-        updateGameInput(&programState->gameState);
+        updateGameInput(programState);
         updatePhysics(&programState->gameState);
+    }
+    if(programState->activeScreen == END) {
+        updateEndInput(programState);
     }
 }
 

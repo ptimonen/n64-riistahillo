@@ -5,16 +5,17 @@
 #include "audio.h"
 #include "globals.h"
 
-void updateGameInput(struct GameState* gameState) {
+void updateGameInput(struct ProgramState* programState) {
     int i;
     for(i = 0; i < 4; ++i) {
-        if (gameState->players[i].health > 0) {
-            updatePlayerInput(&gameState->players[i]);
+        Player* player = &programState->gameState.players[i];
+        if (player->health > 0) {
+            updatePlayerInput(programState, player);
         }
     }
 }
 
-void updatePlayerInput(struct Player* player) {
+void updatePlayerInput(struct ProgramState* programState, struct Player* player) {
     static NUContData controllerData;
 
     nuContDataGetEx(&controllerData, player->index);
@@ -44,6 +45,10 @@ void updatePlayerInput(struct Player* player) {
         player_getBoulder(player)->isStatic = FALSE;
     }
 
+    if (controllerData.trigger & START_BUTTON) {
+        programState->activeScreen = END;
+    }
+
     if(controllerData.trigger & A_BUTTON) {
         sndHandle = nuAuStlSndPlayerPlay(SND_DRUM);
     }
@@ -57,13 +62,13 @@ void updateMenuInput(struct ProgramState* programState) {
     if (controllerData.trigger & L_JPAD && gameConfig->playerCount > 1) {
         gameConfig->playerCount--;
     }
-    if (controllerData.trigger & R_JPAD && gameConfig->playerCount < 4) {
+    else if (controllerData.trigger & R_JPAD && gameConfig->playerCount < 4) {
         gameConfig->playerCount++;
     }
-    if (controllerData.trigger & U_JPAD) {
+    else if (controllerData.trigger & U_JPAD) {
         gameConfig->gameMode = SURVIVAL;
     }
-    if (controllerData.trigger & D_JPAD) {
+    else if (controllerData.trigger & D_JPAD) {
         gameConfig->gameMode = BATTLE;
     }
     if(gameConfig->playerCount == 1 && gameConfig->gameMode == BATTLE) {
@@ -71,5 +76,14 @@ void updateMenuInput(struct ProgramState* programState) {
     }
     if (controllerData.trigger & A_BUTTON) {
         programState->activeScreen = LOADING;
+    }
+}
+
+void updateEndInput(struct ProgramState* programState) {
+    static NUContData controllerData;
+    nuContDataGetEx(&controllerData, 0);
+
+    if (controllerData.trigger & A_BUTTON) {
+        programState->activeScreen = MENU;
     }
 }
