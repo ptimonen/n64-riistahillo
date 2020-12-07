@@ -1,8 +1,8 @@
 #ifndef PHYSICS_H
 #define PHYSICS_H
 
-struct GameState;
+#include "game_state.h"
 
-void updatePhysics(struct GameState* gameState);
+void updatePhysics(GameState* gameState, GameMode gameMode);
 
 #endif

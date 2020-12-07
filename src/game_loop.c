@@ -6,6 +6,26 @@
 #include "physics.h"
 #include "game_setup.h"
 
+void checkEndCondition(ProgramState* programState) {
+    GameConfig* gameConfig = &programState->gameConfig;
+    GameState* gameState = &programState->gameState;
+    int alivePlayers = 0;
+    int i;
+    for(i = 0; i < MAX_PLAYERS; ++i) {
+        alivePlayers += gameState->players[i].health > 0;
+    }
+    {
+        int gameOver = (gameConfig->gameMode == BATTLE && alivePlayers < 2) ||
+                       (gameConfig->gameMode == SURVIVAL && alivePlayers == 0);
+        if (gameOver) {
+            gameState->endTimer = MAX(0.0f, gameState->endTimer - gameState->physics.deltaTime);
+        }
+        if (gameState->endTimer <= 0.0f) {
+            programState->activeScreen = END;
+        }
+    }
+}
+
 void gameLoop() {
     ProgramState* programState = &g_programState;
     if(programState->activeScreen == MENU) {
@@ -17,7 +37,8 @@ void gameLoop() {
     }
     if(programState->activeScreen == GAME) {
         updateGameInput(programState);
-        updatePhysics(&programState->gameState);
+        updatePhysics(&programState->gameState, programState->gameConfig.gameMode);
+        checkEndCondition(programState);
     }
     if(programState->activeScreen == END) {
         updateEndInput(programState);

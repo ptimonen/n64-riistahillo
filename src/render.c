@@ -187,7 +187,9 @@ void drawLevel(GraphicsTask* graphicsTask)
 
 void drawPlayer(GraphicsTask* graphicsTask, const Player* player) {
     const Chain* chain = &player->chain;
-    drawCharacter(graphicsTask, chain->nodes[0].position, 2.3f);
+    if((int)(player->invulnerabilityTimer * PLAYER_INVULNERABILITY_BLINK_HZ) % 2 == 0) {
+        drawCharacter(graphicsTask, chain->nodes[0].position, 2.3f);
+    }
     drawDrum(graphicsTask, chain->nodes[chain->nodeCount - 2].position, chain->nodes[chain->nodeCount - 1].position, 2.0f);
     drawChain(graphicsTask, &player->chain);
     drawHearts(graphicsTask, player);
@@ -260,7 +262,7 @@ void renderGame(GraphicsTask* graphicsTask, struct GameState* gameState) {
     if (!gameState->hideMeshes) {
         drawLevel(graphicsTask);
         for(i = 0; i < 4; ++i) {
-            if (gameState->players[i].health > 0) {
+            if (player_exists(&gameState->players[i])) {
                 drawPlayer(graphicsTask, &gameState->players[i]);
             }
         }

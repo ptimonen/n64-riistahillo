@@ -2,13 +2,13 @@
 #include "game_state.h"
 #include "globals.h"
 
-void setupChain(Chain* chain) {
+void setupChain(Chain* chain, Vec2f position) {
     int i;
     chain->nodeCount = CHAIN_MAX_NODE_COUNT;
     chain->segmentLength = 70;
 
     for(i = 0; i < chain->nodeCount; ++i) {
-        chain->nodes[i].position = (Vec2f){0, -i * chain->segmentLength};
+        chain->nodes[i].position = add2f(position, (Vec2f){0, -i * chain->segmentLength});
         chain->nodes[i].oldPosition = chain->nodes[i].position;
         chain->nodes[i].radius = 0;
         chain->nodes[i].bounciness = 0.5f;
@@ -22,11 +22,19 @@ void setupChain(Chain* chain) {
     chain->nodes[chain->nodeCount - 1].mass = 20.0f;
 }
 
-void setupPlayer(Player* player) {
+void setupPlayer(Player* player, int index) {
+    static const Vec2f startPositions[MAX_PLAYERS] = {
+        {-1000, +700},
+        {+1000, +700},
+        {-800, -300},
+        {+800, -300},
+    };
+    player->index = index;
     player->movementSpeed = 20.0f;
     player->movementControl = (Vec2f){0, 0};
-    setupChain(&player->chain);
     player->score = 0;
+    player->invulnerabilityTimer = 0.0f;
+    setupChain(&player->chain, startPositions[index]);
 }
 
 void setupCamera(Camera* camera) {
@@ -48,14 +56,16 @@ void setupPhysics(Physics* physics) {
 void setupGameState(GameState* gameState, GameConfig* gameConfig) {
     int i;
     gameState->hideMeshes = 0;
-    for(i = 0; i < 4; ++i) {
-        setupPlayer(&gameState->players[i]);
-        gameState->players[i].index = i;
+    gameState->endTimer = 5.0f;
+    for(i = 0; i < MAX_PLAYERS; ++i) {
+        setupPlayer(&gameState->players[i], i);
         if((gameConfig->playerCount - 1) >= i ) {
             gameState->players[i].health = 3;
+            gameState->players[i].despawnTimer = 3.0f;
         }
         else {
             gameState->players[i].health = 0;
+            gameState->players[i].despawnTimer = 0.0f;
         }
         // TODO: Set proper start locations
     }

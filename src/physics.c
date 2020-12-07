@@ -44,6 +44,27 @@ void constrainVerletBody(VerletBody* verletBody, const Physics* physics) {
     }
 }
 
+float checkImpactSpeed(VerletBody* verletBodyA, VerletBody* verletBodyB, const Physics* physics) {
+    float minSeparation = verletBodyA->radius + verletBodyB->radius;
+    Vec2f delta = sub2f(verletBodyB->position, verletBodyA->position);
+    float distanceSq = dot2f(delta, delta);
+    if (distanceSq < minSeparation * minSeparation) {
+        Vec2f velocityA = sub2f(verletBodyA->position, verletBodyA->oldPosition);
+        Vec2f velocityB = sub2f(verletBodyB->position, verletBodyB->oldPosition);
+        Vec2f relativeVelocity = sub2f(velocityB, velocityA);
+        float distance = sqrtf(distanceSq);
+        Vec2f direction = mul2f(delta, 1.0f / distance);
+        float relativeSpeed = dot2f(relativeVelocity, direction);
+        if(relativeSpeed > 0) {
+            return 0.0f;
+        } else {
+            return length2f(relativeVelocity) / physics->deltaTime;
+        }
+    } else {
+        return 0.0f;
+    }
+}
+
 void constrainColliders(VerletBody* verletBodyA, VerletBody* verletBodyB, const Physics* physics) {
     float minSeparation = verletBodyA->radius + verletBodyB->radius;
     Vec2f delta = sub2f(verletBodyB->position, verletBodyA->position);
@@ -104,7 +125,10 @@ void constrainChain(Chain* chain, const Physics* physics) {
 
 void updatePlayer(Player* player, const Physics* physics) {
     int i;
-    int j;
+
+    if(!player_exists(player)) {
+        return;
+    }
 
     addTo2f(
         &player_getCharacter(player)->position,
@@ -114,13 +138,51 @@ void updatePlayer(Player* player, const Physics* physics) {
     for (i = 0; i < player->chain.nodeCount; ++i) {
         updateVerletBody(&player->chain.nodes[i], physics);
     }
-    for (i = 0; i < physics->verletConstraintIterations; ++i) {
+
+    if(player->invulnerabilityTimer > 0.0f) {
+        player->invulnerabilityTimer = MAX(0.0f, player->invulnerabilityTimer - physics->deltaTime);
+//        if(player->invulnerabilityTimer == 0.0f) {
+//            int i;
+//            for(i = 0; i < CHAIN_MAX_NODE_COUNT; ++i) {
+//                player->chain.nodes[i].mass /= PLAYER_INVULNERABILITY_MASS_MULTIPLIER;
+//            }
+//        }
+    }
+    if(player->health <= 0) {
+        player->despawnTimer = MAX(0.0f, player->despawnTimer - physics->deltaTime);
+    }
+}
+
+void constrainPhysics(GameState* gameState) {
+    const Physics* physics = &gameState->physics;
+    int i;
+    int j;
+
+    for (i = 0; i < MAX_PLAYERS; ++i) {
+        Player* player = &gameState->players[i];
+        if(!player_exists(player)) continue;
         constrainChain(&player->chain, physics);
-        constrainColliders(player_getCharacter(player), player_getBoulder(player), physics);
-        constrainVerletBody(player_getCharacter(player), physics);
-        //for (j = 0; j < player->chain.nodeCount; ++j) {
-        //    constrainVerletBody(&player->chain.nodes[j], physics);
-        //}
+    }
+
+    for (i = 0; i < MAX_PLAYERS; ++i) {
+        Player* playerA = &gameState->players[i];
+        if(!player_exists(playerA)) continue;
+        constrainColliders(player_getBoulder(playerA), player_getCharacter(playerA), physics);
+        for (j = i + 1; j < MAX_PLAYERS; ++j) {
+            Player* playerB = &gameState->players[j];
+            if(!player_exists(playerB)) continue;
+            constrainColliders(player_getCharacter(playerA), player_getCharacter(playerB), physics);
+            constrainColliders(player_getBoulder(playerA), player_getBoulder(playerB), physics);
+            constrainColliders(player_getBoulder(playerA), player_getCharacter(playerB), physics);
+            constrainColliders(player_getBoulder(playerB), player_getCharacter(playerA), physics);
+        }
+    }
+
+    for (i = 0; i < MAX_PLAYERS; ++i) {
+        Player* player = &gameState->players[i];
+        if(player->health > 0) {
+            constrainVerletBody(player_getCharacter(player), physics);
+        }
     }
 }
 
@@ -131,12 +193,51 @@ float updateDeltaTime(Physics* physics) {
     physics->timeAtLastPhysicsUpdate = timeNow;
 }
 
-void updatePhysics(struct GameState* gameState) {
+void updateDamagePlayerToPlayer(GameState* gameState, Player* sourcePlayer, Player* targetPlayer) {
+    Physics* physics = &gameState->physics;
+    Camera* camera = &gameState->camera;
+    float speed = checkImpactSpeed(player_getBoulder(sourcePlayer), player_getCharacter(targetPlayer), physics);
+    if(speed > 100.0f && targetPlayer->invulnerabilityTimer <= 0.0f) {
+//        int i;
+//        for(i = 0; i < CHAIN_MAX_NODE_COUNT; ++i) {
+//            targetPlayer->chain.nodes[i].mass *= PLAYER_INVULNERABILITY_MASS_MULTIPLIER;
+//        }
+        targetPlayer->invulnerabilityTimer = 3.0f;
+        --targetPlayer->health;
+        ++sourcePlayer->score;
+        camera->screenShake += speed;
+    }
+}
+
+void updateDamageBattle(GameState* gameState) {
     int i;
-    updateDeltaTime(&gameState->physics);
-    for(i = 0; i < 4; ++i) {
-        if (gameState->players[i].health > 0) {
-            updatePlayer(&gameState->players[i], &gameState->physics);
+    int j;
+    for(i = 0; i < MAX_PLAYERS; ++i) {
+        Player* playerA = &gameState->players[i];
+        if(playerA->health <= 0) continue;
+        for(j = i + 1; j < MAX_PLAYERS; ++j) {
+            Player* playerB = &gameState->players[j];
+            if(playerB->health <= 0) continue;
+            updateDamagePlayerToPlayer(gameState, playerA, playerB);
+            updateDamagePlayerToPlayer(gameState, playerB, playerA);
         }
+    }
+}
+
+void updatePhysics(GameState* gameState, GameMode gameMode) {
+    const Physics* physics = &gameState->physics;
+    int i;
+
+    updateDeltaTime(&gameState->physics);
+    if(gameMode == BATTLE) {
+        updateDamageBattle(gameState);
+    }
+
+    for(i = 0; i < MAX_PLAYERS; ++i) {
+        updatePlayer(&gameState->players[i], &gameState->physics);
+    }
+
+    for (i = 0; i < physics->verletConstraintIterations; ++i) {
+        constrainPhysics(gameState);
     }
 }

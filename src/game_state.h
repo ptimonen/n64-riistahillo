@@ -5,6 +5,9 @@
 
 #define CHAIN_MAX_NODE_COUNT 8
 #define PLAYER_CHAIN_SEGMENT_LENGTH 150
+#define MAX_PLAYERS 4
+#define PLAYER_INVULNERABILITY_BLINK_HZ 4.0
+#define PLAYER_INVULNERABILITY_MASS_MULTIPLIER 0.05
 
 typedef struct VerletBody {
     Vec2f position;
@@ -29,6 +32,8 @@ typedef struct Chain {
 typedef struct Player {
     Chain chain; // First and last links correspond to player and boulder
     float movementSpeed;
+    float invulnerabilityTimer;
+    float despawnTimer;
     Vec2f movementControl;
     int health;
     int index;
@@ -41,6 +46,10 @@ static inline VerletBody* player_getCharacter(Player* player) {
 
 static inline VerletBody* player_getBoulder(Player* player) {
     return &player->chain.nodes[player->chain.nodeCount - 1];
+}
+
+static inline int player_exists(Player* player) {
+    return player->despawnTimer > 0.0f;
 }
 
 typedef struct Camera {
@@ -62,6 +71,7 @@ typedef struct Physics {
 
 typedef struct GameState {
     int hideMeshes;
+    float endTimer;
     Player players[4];
     Camera camera;
     Physics physics;
