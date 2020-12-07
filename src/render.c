@@ -8,6 +8,9 @@
 
 #include "models/placeholder_sphere/placeholder_sphere.h"
 #include "models/players/mask_player_1.h"
+#include "models/players/mask_player_2.h"
+#include "models/players/mask_player_3.h"
+#include "models/players/mask_player_4.h"
 #include "models/players/drum.h"
 #include "models/level/level.h"
 #include "models/level/level1.h"
@@ -64,7 +67,7 @@ void popTransform() {
     gSPPopMatrix(g_dl++, G_MTX_MODELVIEW);
 }
 
-void drawCharacter(GraphicsTask* graphicsTask, Vec2f position, float scale) {
+void drawCharacter(GraphicsTask* graphicsTask, Vec2f position, float scale, int playerIndex) {
     pushTransform(
         graphicsTask,
         0, // roll
@@ -76,7 +79,18 @@ void drawCharacter(GraphicsTask* graphicsTask, Vec2f position, float scale) {
         0
     );
 
-    drawTexturedModel(Wtx_mask_player_1);
+    if(playerIndex == 0) {
+        drawTexturedModel(Wtx_mask_player_1);
+    }
+    else if(playerIndex == 1) {
+        drawTexturedModel(Wtx_mask_player_2);
+    }
+    else if(playerIndex == 2) {
+        drawTexturedModel(Wtx_mask_player_3);
+    }
+    else if(playerIndex == 3) {
+        drawTexturedModel(Wtx_mask_player_4);
+    }
 
     popTransform();
 }
@@ -194,7 +208,7 @@ void drawLevel(GraphicsTask* graphicsTask)
 void drawPlayer(GraphicsTask* graphicsTask, const Player* player) {
     const Chain* chain = &player->chain;
     if((int)(player->invulnerabilityTimer * PLAYER_INVULNERABILITY_BLINK_HZ) % 2 == 0) {
-        drawCharacter(graphicsTask, chain->nodes[0].position, 2.3f);
+        drawCharacter(graphicsTask, chain->nodes[0].position, 2.3f, player->index);
     }
     drawDrum(graphicsTask, chain->nodes[chain->nodeCount - 2].position, chain->nodes[chain->nodeCount - 1].position, 2.0f);
     drawChain(graphicsTask, &player->chain);
@@ -413,7 +427,7 @@ void setRenderAttributes() {
     gDPSetTextureFilter(g_dl++, G_TF_BILERP);
     gSPTexture(g_dl++, 0x8000, 0x8000, 0, 0, G_ON);
     gSPClearGeometryMode(g_dl++, 0xFFFFFFFF);
-    gSPSetGeometryMode(g_dl++, G_SHADE | G_SHADING_SMOOTH | G_ZBUFFER);
+    gSPSetGeometryMode(g_dl++, G_SHADE | G_SHADING_SMOOTH | G_ZBUFFER | G_CULL_BACK);
     gDPPipeSync(g_dl++);
 }
 
