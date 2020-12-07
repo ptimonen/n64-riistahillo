@@ -10,6 +10,9 @@
 #include "models/players/mask_player_1.h"
 #include "models/players/drum.h"
 #include "models/level/level.h"
+#include "models/level/level1.h"
+#include "models/level/level2.h"
+#include "models/level/level3.h"
 #include "models/menu/background.h"
 #include "models/menu/mode_battle.h"
 #include "models/menu/mode_survival.h"
@@ -182,6 +185,9 @@ void drawLevel(GraphicsTask* graphicsTask)
     );
 
     drawTexturedModel(Wtx_level);
+    drawTexturedModel(Wtx_level1);
+    drawTexturedModel(Wtx_level2);
+    drawTexturedModel(Wtx_level3);
     popTransform();
 }
 
