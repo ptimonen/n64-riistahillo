@@ -153,7 +153,7 @@ void drawChain(GraphicsTask* graphicsTask, const Chain* chain) {
 }
 
 void drawHearts(GraphicsTask* graphicsTask, const Player* player) {
-    float x = -1100.0f + (525.0f * player->index);
+    float x = -1100.0f + (650.0f * player->index);
     float y = 800.0f;
     int i;
 
