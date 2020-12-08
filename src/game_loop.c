@@ -28,6 +28,8 @@ void checkEndCondition(ProgramState* programState) {
 
 void gameLoop() {
     ProgramState* programState = &g_programState;
+    updatePhysics(&programState->gameState, programState->gameConfig.gameMode);
+
     if(programState->activeScreen == MENU) {
         updateMenuInput(programState);
     }
@@ -37,7 +39,6 @@ void gameLoop() {
     }
     if(programState->activeScreen == GAME) {
         updateGameInput(programState);
-        updatePhysics(&programState->gameState, programState->gameConfig.gameMode);
         checkEndCondition(programState);
     }
     if(programState->activeScreen == END) {

@@ -289,7 +289,22 @@ void renderGame(GraphicsTask* graphicsTask, struct GameState* gameState) {
     }
 }
 
-void renderMenu(GraphicsTask* graphicsTask, struct GameConfig* gameConfig) {
+void renderMenu(GraphicsTask* graphicsTask, struct GameConfig* gameConfig, struct GameState* gameState) {
+
+    menuRotation += 33.0f * gameState->physics.deltaTime;
+    pushTransform(
+            graphicsTask,
+            0.0f, // roll
+            menuRotation, // pitch
+            0.0f, // heading
+            15.0f, // scale
+            0.0f, // x
+            0.0f, // y
+            0.0f  // z
+    );
+    drawTexturedModel(Wtx_background);
+    popTransform();
+
     pushTransform(
         graphicsTask,
         0.0f, // roll
@@ -300,8 +315,6 @@ void renderMenu(GraphicsTask* graphicsTask, struct GameConfig* gameConfig) {
         0.0f, // y
         0.0f  // z
     );
-
-    drawTexturedModel(Wtx_background);
     if (gameConfig->gameMode == BATTLE) {
         drawTexturedModel(Wtx_mode_battle);
     } else {
@@ -318,7 +331,58 @@ void renderMenu(GraphicsTask* graphicsTask, struct GameConfig* gameConfig) {
     }
     drawTexturedModel(Wtx_text_modes);
     drawTexturedModel(Wtx_text_players);
+    popTransform();
 
+    pushTransform(
+            graphicsTask,
+            20.0f, // roll
+            -50.0f, // pitch
+            -20.0f, // heading
+            6.0f, // scale
+            -900.0f, // x
+            650.0f, // y
+            0.0f  // z
+    );
+    drawTexturedModel(Wtx_mask_player_1);
+    popTransform();
+
+    pushTransform(
+            graphicsTask,
+            25.0f, // roll
+            -50.0f, // pitch
+            00.0f, // heading
+            6.0f, // scale
+            -950.0f, // x
+            50.0f, // y
+            0.0f  // z
+    );
+    drawTexturedModel(Wtx_mask_player_2);
+    popTransform();
+
+    pushTransform(
+            graphicsTask,
+            -25.0f, // roll
+            -120.0f, // pitch
+            00.0f, // heading
+            6.0f, // scale
+            950.0f, // x
+            -50.0f, // y
+            0.0f  // z
+    );
+    drawTexturedModel(Wtx_mask_player_3);
+    popTransform();
+
+    pushTransform(
+            graphicsTask,
+            -20.0f, // roll
+            -120.0f, // pitch
+            20.0f, // heading
+            6.0f, // scale
+            900.0f, // x
+            -650.0f, // y
+            0.0f  // z
+    );
+    drawTexturedModel(Wtx_mask_player_4);
     popTransform();
 }
 
@@ -457,7 +521,7 @@ void render(struct ProgramState* programState) {
     if (programState->activeScreen == GAME) {
         renderGame(graphicsTask, &programState->gameState);
     } else if(programState->activeScreen == MENU) {
-        renderMenu(graphicsTask, &programState->gameConfig);
+        renderMenu(graphicsTask, &programState->gameConfig, &programState->gameState);
     }
     else {
         renderEnd(graphicsTask, &programState->gameState);

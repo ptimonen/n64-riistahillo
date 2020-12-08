@@ -6,11 +6,13 @@ struct GameState;
 struct GameConfig;
 struct GraphicsTask;
 
+float menuRotation;
+
 void render(struct ProgramState* programState);
 
 void renderGame(struct GraphicsTask* graphicsTask, struct GameState* gameState);
 
-void renderMenu(struct GraphicsTask* graphicsTask, struct GameConfig* gameConfig);
+void renderMenu(struct GraphicsTask* graphicsTask, struct GameConfig* gameConfig, struct GameState* gameState);
 
 void renderEnd(struct GraphicsTask* graphicsTask, struct GameState* gameState);
 
