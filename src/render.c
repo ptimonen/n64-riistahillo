@@ -464,6 +464,20 @@ void drawScore(GraphicsTask* graphicsTask, Player* player)
 void renderEnd(GraphicsTask* graphicsTask, struct GameState* gameState) {
     int i;
 
+    menuRotation += 33.0f * gameState->physics.deltaTime;
+    pushTransform(
+            graphicsTask,
+            -90.0f, // roll
+            menuRotation, // pitch
+            0.0f, // heading
+            15.0f, // scale
+            0.0f, // x
+            0.0f, // y
+            0.0f  // z
+    );
+    drawTexturedModel(Wtx_end_background);
+    popTransform();
+
     pushTransform(
             graphicsTask,
             0.0f,
@@ -474,13 +488,40 @@ void renderEnd(GraphicsTask* graphicsTask, struct GameState* gameState) {
             0.0f,
             0.0f
     );
-    drawTexturedModel(Wtx_end_background);
     drawTexturedModel(Wtx_text_score);
     drawTexturedModel(Wtx_text_scores);
     popTransform();
 
     for(i = 0; i < 4; ++i) {
         drawScore(graphicsTask, &gameState->players[i]);
+    }
+
+    for(i = 0; i < 4; ++i) {
+        pushTransform(
+                graphicsTask,
+                70.0f + (30.0f * i),
+                -60.0f,
+                20.0f + (15.0f * i),
+                4.4f,
+                -850.0f,
+                -650.0f + (650.0f * i),
+                0.0f
+        );
+        drawTexturedModel(Wtx_drum);
+        popTransform();
+
+        pushTransform(
+                graphicsTask,
+                70.0f + (30.0f * i),
+                -120.0f,
+                20.0f + (15.0f * i),
+                4.4f,
+                850.0f,
+                -650.0f + (650.0f * i),
+                0.0f
+        );
+        drawTexturedModel(Wtx_drum);
+        popTransform();
     }
 }
 
