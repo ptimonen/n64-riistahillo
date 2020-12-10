@@ -185,24 +185,37 @@ void drawHearts(GraphicsTask* graphicsTask, const Player* player) {
     }
 }
 
-void drawLevel(GraphicsTask* graphicsTask)
+void drawLevel(GraphicsTask* graphicsTask, float deltaTime)
 {
-    pushTransform(
-            graphicsTask,
-            0.0f, // roll
-            -90.0f, // pitch
-            0.0f, // heading
-            1.0f, // scale
-            0.0f,
-            0.0f,
-            0.0f
-    );
+    int i;
+    menuFloating += 0.3f * deltaTime;
 
-    drawTexturedModel(Wtx_level);
-    drawTexturedModel(Wtx_level1);
-    drawTexturedModel(Wtx_level2);
-    drawTexturedModel(Wtx_level3);
-    popTransform();
+    for(i = 0; i < 4; ++i) {
+        pushTransform(
+                graphicsTask,
+                0.0f, // roll
+                -90.0f, // pitch
+                cosf(menuFloating + (0.25 * i)) * 15.0f, // heading
+                1.0f, // scale
+                0.0f,
+                cosf(menuFloating) * 10.0f,
+                0.0f
+        );
+
+        if(i == 0) {
+            drawTexturedModel(Wtx_level);
+        }
+        else if(i == 1) {
+            drawTexturedModel(Wtx_level1);
+        }
+        else if(i == 2) {
+            drawTexturedModel(Wtx_level2);
+        }
+        else {
+            drawTexturedModel(Wtx_level3);
+        }
+        popTransform();
+    }
 }
 
 void drawPlayer(GraphicsTask* graphicsTask, const Player* player) {
@@ -280,7 +293,7 @@ void endGraphicsTask(GraphicsTask* graphicsTask) {
 void renderGame(GraphicsTask* graphicsTask, struct GameState* gameState) {
     int i;
     if (!gameState->hideMeshes) {
-        drawLevel(graphicsTask);
+        drawLevel(graphicsTask, gameState->physics.deltaTime);
         for(i = 0; i < 4; ++i) {
             if (player_exists(&gameState->players[i])) {
                 drawPlayer(graphicsTask, &gameState->players[i]);
@@ -498,7 +511,7 @@ void renderEnd(GraphicsTask* graphicsTask, struct GameState* gameState) {
         drawScore(graphicsTask, &gameState->players[i]);
     }
 
-    for(i = 0; i < 4; ++i) {
+    for(i = 0; i < 3; ++i) {
         pushTransform(
                 graphicsTask,
                 70.0f + (30.0f * i),
