@@ -291,6 +291,7 @@ void renderGame(GraphicsTask* graphicsTask, struct GameState* gameState) {
 
 void renderMenu(GraphicsTask* graphicsTask, struct GameConfig* gameConfig, struct GameState* gameState) {
 
+    menuFloating += 5.0f * gameState->physics.deltaTime;
     menuRotation += 33.0f * gameState->physics.deltaTime;
     pushTransform(
             graphicsTask,
@@ -340,7 +341,7 @@ void renderMenu(GraphicsTask* graphicsTask, struct GameConfig* gameConfig, struc
             -20.0f, // heading
             6.0f, // scale
             -900.0f, // x
-            650.0f, // y
+            650.0f - cosf(menuFloating) * 25.0f, // y
             0.0f  // z
     );
     drawTexturedModel(Wtx_mask_player_1);
@@ -353,7 +354,7 @@ void renderMenu(GraphicsTask* graphicsTask, struct GameConfig* gameConfig, struc
             00.0f, // heading
             6.0f, // scale
             -950.0f, // x
-            50.0f, // y
+            50.0f - cosf(menuFloating + 0.5f) * 25.0f, // y
             0.0f  // z
     );
     drawTexturedModel(Wtx_mask_player_2);
@@ -366,7 +367,7 @@ void renderMenu(GraphicsTask* graphicsTask, struct GameConfig* gameConfig, struc
             00.0f, // heading
             6.0f, // scale
             950.0f, // x
-            -50.0f, // y
+            -50.0f + cosf(menuFloating + 0.25f) * 25.0f, // y
             0.0f  // z
     );
     drawTexturedModel(Wtx_mask_player_3);
@@ -379,7 +380,7 @@ void renderMenu(GraphicsTask* graphicsTask, struct GameConfig* gameConfig, struc
             20.0f, // heading
             6.0f, // scale
             900.0f, // x
-            -650.0f, // y
+            -650.0f + cosf(menuFloating + 0.75f) * 25.0f, // y
             0.0f  // z
     );
     drawTexturedModel(Wtx_mask_player_4);
@@ -464,6 +465,7 @@ void drawScore(GraphicsTask* graphicsTask, Player* player)
 void renderEnd(GraphicsTask* graphicsTask, struct GameState* gameState) {
     int i;
 
+    menuFloating += 5.0f * gameState->physics.deltaTime;
     menuRotation += 33.0f * gameState->physics.deltaTime;
     pushTransform(
             graphicsTask,
@@ -501,10 +503,10 @@ void renderEnd(GraphicsTask* graphicsTask, struct GameState* gameState) {
                 graphicsTask,
                 70.0f + (30.0f * i),
                 -60.0f,
-                20.0f + (15.0f * i),
+                20.0f + (15.0f * i) + menuRotation,
                 4.4f,
                 -850.0f,
-                -650.0f + (650.0f * i),
+                -650.0f + (650.0f * i) + cosf(menuFloating + (0.33f * i)) * 30.0f,
                 0.0f
         );
         drawTexturedModel(Wtx_drum);
@@ -514,10 +516,10 @@ void renderEnd(GraphicsTask* graphicsTask, struct GameState* gameState) {
                 graphicsTask,
                 70.0f + (30.0f * i),
                 -120.0f,
-                20.0f + (15.0f * i),
+                20.0f + (15.0f * i) + menuRotation,
                 4.4f,
                 850.0f,
-                -650.0f + (650.0f * i),
+                -650.0f + (650.0f * i) - cosf(menuFloating + (0.33f * i)) * 30.0f,
                 0.0f
         );
         drawTexturedModel(Wtx_drum);

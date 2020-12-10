@@ -7,6 +7,7 @@ struct GameConfig;
 struct GraphicsTask;
 
 float menuRotation;
+float menuFloating;
 
 void render(struct ProgramState* programState);
 
