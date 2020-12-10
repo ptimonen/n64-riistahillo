@@ -10,7 +10,7 @@ void Rom2Ram(void *from_addr, void *to_addr, s32 seq_size)
     nuPiReadRom((u32)from_addr, to_addr, seq_size);
 }
 
-void initAudio(void)
+void initAudio()
 {
     musConfig c;
 
@@ -48,4 +48,68 @@ void initAudio(void)
     Rom2Ram((void *)SFX_START, (void *)sfx_buf,
             SFX_END-SFX_START);
     MusFxBankInitialize(sfx_buf);
+}
+
+void updateAudio(float deltaTime)
+{
+    if(softSoundPlaying > 0)
+    {
+        softSoundPlaying -= deltaTime;
+    }
+}
+
+void playRandomDrumHard()
+{
+    int r;
+    r = RAND(5);
+    switch(r)
+    {
+        case 0: sndHandle = nuAuStlSndPlayerPlay(SND_DRUMHRD1); break;
+        case 1: sndHandle = nuAuStlSndPlayerPlay(SND_DRUMHRD2); break;
+        case 2: sndHandle = nuAuStlSndPlayerPlay(SND_DRUMHRD3); break;
+        case 3: sndHandle = nuAuStlSndPlayerPlay(SND_DRUMHRD4); break;
+        case 4: sndHandle = nuAuStlSndPlayerPlay(SND_DRUMHRD5); break;
+        case 5: sndHandle = nuAuStlSndPlayerPlay(SND_DRUMHRD6); break;
+    }
+}
+
+void playRandomDrumSoft()
+{
+    if(softSoundPlaying <= 0) {
+        int r;
+        r = RAND(1);
+        switch (r) {
+            case 0:
+                sndHandle = nuAuStlSndPlayerPlay(SND_DRUMSFT1);
+                break;
+            case 1:
+                sndHandle = nuAuStlSndPlayerPlay(SND_DRUMSFT2);
+                break;
+        }
+        softSoundPlaying = 1.0f;
+    }
+}
+
+void playRandomDeath()
+{
+    int r;
+    r = RAND(1);
+    switch(r)
+    {
+        case 0: sndHandle = nuAuStlSndPlayerPlay(SND_DIE1); break;
+        case 1: sndHandle = nuAuStlSndPlayerPlay(SND_DIE2); break;
+    }
+}
+
+void playRandomEnemySpawn()
+{
+    int r;
+    r = RAND(3);
+    switch(r)
+    {
+        case 0: sndHandle = nuAuStlSndPlayerPlay(SND_E_SPAWN1); break;
+        case 1: sndHandle = nuAuStlSndPlayerPlay(SND_E_SPAWN2); break;
+        case 2: sndHandle = nuAuStlSndPlayerPlay(SND_E_SPAWN3); break;
+        case 3: sndHandle = nuAuStlSndPlayerPlay(SND_E_SPAWN4); break;
+    }
 }

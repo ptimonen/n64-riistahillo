@@ -1,5 +1,6 @@
 #include "game_loop.h"
 
+#include "audio.h"
 #include "globals.h"
 #include "render.h"
 #include "input.h"
@@ -29,6 +30,7 @@ void checkEndCondition(ProgramState* programState) {
 void gameLoop() {
     ProgramState* programState = &g_programState;
     updatePhysics(&programState->gameState, programState->gameConfig.gameMode);
+    updateAudio(programState->gameState.physics.deltaTime);
 
     if(programState->activeScreen == MENU) {
         updateMenuInput(programState);

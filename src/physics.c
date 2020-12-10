@@ -1,5 +1,6 @@
 #include "physics.h"
 
+#include "audio.h"
 #include "math_util.h"
 #include "game_state.h"
 #include "globals.h"
@@ -197,15 +198,25 @@ void updateDamagePlayerToPlayer(GameState* gameState, Player* sourcePlayer, Play
     Physics* physics = &gameState->physics;
     Camera* camera = &gameState->camera;
     float speed = checkImpactSpeed(player_getBoulder(sourcePlayer), player_getCharacter(targetPlayer), physics);
-    if(speed > 100.0f && targetPlayer->invulnerabilityTimer <= 0.0f) {
+
+    if(targetPlayer->invulnerabilityTimer <= 0.0f) {
+        if (speed > 600.0f) {
 //        int i;
 //        for(i = 0; i < CHAIN_MAX_NODE_COUNT; ++i) {
 //            targetPlayer->chain.nodes[i].mass *= PLAYER_INVULNERABILITY_MASS_MULTIPLIER;
 //        }
-        targetPlayer->invulnerabilityTimer = 3.0f;
-        --targetPlayer->health;
-        ++sourcePlayer->score;
-        camera->screenShake += speed;
+            playRandomDrumHard();
+            targetPlayer->invulnerabilityTimer = 3.0f;
+            --targetPlayer->health;
+            if (targetPlayer->health <= 0) {
+                playRandomDeath();
+            }
+            ++sourcePlayer->score;
+            camera->screenShake += 600;
+        } else if (speed > 0.1f){
+            playRandomDrumSoft();
+            camera->screenShake += 300;
+        }
     }
 }
 
