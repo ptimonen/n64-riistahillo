@@ -29,6 +29,12 @@ void checkEndCondition(ProgramState* programState) {
 
 void gameLoop() {
     ProgramState* programState = &g_programState;
+
+    if(programState->gameState.freezeFrame > 0) {
+        --programState->gameState.freezeFrame;
+        return;
+    }
+
     updatePhysics(&programState->gameState, programState->gameConfig.gameMode);
     updateAudio(programState->gameState.physics.deltaTime);
 

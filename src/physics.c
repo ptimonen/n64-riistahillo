@@ -213,6 +213,7 @@ void updateDamagePlayerToPlayer(GameState* gameState, Player* sourcePlayer, Play
             }
             ++sourcePlayer->score;
             camera->screenShake += 600;
+            gameState->freezeFrame = 12;
         } else if (speed > 0.1f){
             playRandomDrumSoft();
             camera->screenShake += 300;
