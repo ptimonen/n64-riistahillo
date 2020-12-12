@@ -22,7 +22,7 @@ void collisionScreenShake(float speed, Camera* camera) {
     const float maxScreenShake = 500;
     speed -= minSpeed;
     if(speed > 0 && camera->screenShake < maxScreenShake) {
-        camera->screenShake = MIN(maxScreenShake, camera->screenShake + 0.25f * speed);
+        camera->screenShake = MIN(maxScreenShake, camera->screenShake + 0.1f * speed);
     }
 }
 
@@ -101,7 +101,7 @@ void updateDamagePlayerToPlayer(Player* sourcePlayer, Player* targetPlayer, floa
             gameState->freezeFrame = 12;
         } else if (speed > 0.1f){
             playRandomDrumSoft();
-            camera->screenShake = 300;
+            camera->screenShake = 200;
         }
     }
 }

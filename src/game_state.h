@@ -40,6 +40,7 @@ typedef struct Player {
     int health;
     int index;
     int score;
+    float barrelSpeed;
 } Player;
 
 static inline VerletBody* player_getCharacter(Player* player) {

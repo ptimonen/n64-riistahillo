@@ -13,6 +13,7 @@
 #include "models/players/mask_player_3.h"
 #include "models/players/mask_player_4.h"
 #include "models/players/drum.h"
+#include "models/players/drum_waves.h"
 #include "models/level/level.h"
 #include "models/level/level1.h"
 #include "models/level/level2.h"
@@ -97,7 +98,7 @@ void drawCharacter(GraphicsTask* graphicsTask, Vec2f position, float scale, int 
     popTransform();
 }
 
-void drawDrum(GraphicsTask* graphicsTask, Vec2f chainPosition, Vec2f position, float scale) {
+void drawDrum(GraphicsTask* graphicsTask, Vec2f chainPosition, Vec2f position, float scale, float speed) {
     Vec2f direction = sub2f(chainPosition, position);
     float angle = radToDeg(atan2(direction.y, direction.x));
     pushTransform(
@@ -112,7 +113,9 @@ void drawDrum(GraphicsTask* graphicsTask, Vec2f chainPosition, Vec2f position, f
     );
 
     drawTexturedModel(Wtx_drum);
-
+    if(speed > 2300.0f) {
+        drawTexturedModel(Wtx_drum_waves);
+    }
     popTransform();
 }
 
@@ -224,7 +227,7 @@ void drawPlayer(GraphicsTask* graphicsTask, const Player* player) {
     if((int)(player->invulnerabilityTimer * PLAYER_INVULNERABILITY_BLINK_HZ) % 2 == 0) {
         drawCharacter(graphicsTask, chain->nodes[0].position, 2.3f, player->index);
     }
-    drawDrum(graphicsTask, chain->nodes[chain->nodeCount - 2].position, chain->nodes[chain->nodeCount - 1].position, 2.0f);
+    drawDrum(graphicsTask, chain->nodes[chain->nodeCount - 2].position, chain->nodes[chain->nodeCount - 1].position, 2.0f, player->barrelSpeed);
     drawChain(graphicsTask, &player->chain);
     drawHearts(graphicsTask, player);
 }
