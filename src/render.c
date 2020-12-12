@@ -324,7 +324,7 @@ void renderMenu(GraphicsTask* graphicsTask, struct GameConfig* gameConfig, struc
         0.0f, // roll
         -90.0f, // pitch
         0.0f, // heading
-        15.0f, // scale
+        3.75f, // scale
         0.0f, // x
         0.0f, // y
         0.0f  // z
