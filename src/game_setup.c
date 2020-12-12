@@ -36,6 +36,7 @@ void setupPlayer(Player* player, int index) {
     player->movementControl = (Vec2f){0, 0};
     player->score = 0;
     player->invulnerabilityTimer = 0.0f;
+    player->bigBoulderTimer = 0.0f;
     setupChain(&player->chain, startPositions[index]);
 }
 
