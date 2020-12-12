@@ -85,7 +85,7 @@ void updateDamagePlayerToPlayer(Player* sourcePlayer, Player* targetPlayer, floa
     }
 
     if(targetPlayer->invulnerabilityTimer <= 0.0f) {
-        if (speed > 600.0f) {
+        if (speed > 2300.0f) {
 //        int i;
 //        for(i = 0; i < CHAIN_MAX_NODE_COUNT; ++i) {
 //            targetPlayer->chain.nodes[i].mass *= PLAYER_INVULNERABILITY_MASS_MULTIPLIER;
@@ -97,11 +97,11 @@ void updateDamagePlayerToPlayer(Player* sourcePlayer, Player* targetPlayer, floa
                 playRandomDeath();
             }
             ++sourcePlayer->score;
-            camera->screenShake += 600;
+            camera->screenShake = 600;
             gameState->freezeFrame = 12;
         } else if (speed > 0.1f){
             playRandomDrumSoft();
-            camera->screenShake += 300;
+            camera->screenShake = 300;
         }
     }
 }
@@ -132,7 +132,7 @@ void constrainColliders(VerletBody* verletBodyA, VerletBody* verletBodyB, const 
 
         // Apply elastic collision if moving towards each other
         if(relativeSpeed > 0.0f) {
-            const float bounciness = 0.9f;
+            const float bounciness = 0.4f;
             Vec2f common = add2f(mul2f(velocityA, massA), mul2f(velocityB, massB));
             Vec2f a = mul2f(sub2f(velocityB, velocityA), massB * bounciness);
             Vec2f b = mul2f(sub2f(velocityA, velocityB), massA * bounciness);

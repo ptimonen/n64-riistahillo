@@ -27,6 +27,7 @@ void checkEndCondition(ProgramState* programState) {
             gameState->endTimer = MAX(0.0f, gameState->endTimer - gameState->physics.deltaTime);
         }
         if (gameState->endTimer <= 0.0f) {
+            sndHandle = nuAuStlSndPlayerPlay(SND_GAMEEND);
             programState->activeScreen = END;
         }
     }

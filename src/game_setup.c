@@ -62,8 +62,8 @@ void setupPhysics(Physics* physics) {
     physics->timeAtLastPhysicsUpdate = 0.0f;
     physics->deltaTime = 0.0f;
     physics->gravity = (Vec2f){0, -10};
-    physics->minBoundary = (Vec2f){-1200, -900};
-    physics->maxBoundary = (Vec2f){1200, 900};
+    physics->minBoundary = (Vec2f){-1400, -1100};
+    physics->maxBoundary = (Vec2f){1400, 1100};
 }
 
 void setupGameState(GameState* gameState, GameConfig* gameConfig) {
