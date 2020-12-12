@@ -166,12 +166,19 @@ void constrainChain(Chain* chain, const Physics* physics) {
     }
 }
 
+static inline float player_getBoulderSpeed(Player* player, const Physics* physics) {
+    VerletBody* boulder = player_getBoulder(player);
+    return length2f(mul2f(sub2f(boulder->position, boulder->oldPosition), 1.0f / physics->deltaTime));
+}
+
 void updatePlayer(Player* player, const Physics* physics) {
     int i;
 
     if(!player_exists(player)) {
         return;
     }
+
+    player->barrelSpeed = player_getBoulderSpeed(player, physics);
 
     // Player movement/acceleration physics.
     {
