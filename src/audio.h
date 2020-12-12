@@ -37,13 +37,21 @@ static musHandle sndHandle = 0;
 #define SND_E_SPAWN2        13
 #define SND_E_SPAWN3        14
 #define SND_E_SPAWN4        15
-#define SND_MODESET         14
-#define SND_P_SPAWN         15
+#define SND_GAMEEND         16
+#define SND_GAMESTR         17
+#define SND_MENU            18
+#define SND_MENUOK          19
+#define SND_MODESET         20
+#define SND_MUSAT           21
+#define SND_P_SPAWN         22
 
 int ptr_buf[NU_AU_SAMPLE_SIZE];
 int sfx_buf[NU_AU_SE_SIZE];
 
 float softSoundPlaying;
+
+float musicTimer;
+int musicPlaying;
 
 void Rom2Ram(void *from_addr, void *to_addr, s32 seq_size);
 void initAudio();

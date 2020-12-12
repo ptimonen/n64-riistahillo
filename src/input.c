@@ -31,7 +31,7 @@ void updatePlayerInput(struct ProgramState* programState, struct Player* player)
 
     if (controllerData.trigger & START_BUTTON) {
         programState->activeScreen = END;
-        sndHandle = nuAuStlSndPlayerPlay(SND_CHARSEL);
+        sndHandle = nuAuStlSndPlayerPlay(SND_GAMEEND);
     }
 }
 
@@ -61,7 +61,7 @@ void updateMenuInput(struct ProgramState* programState) {
     }
     if (controllerData.trigger & A_BUTTON) {
         programState->activeScreen = LOADING;
-        sndHandle = nuAuStlSndPlayerPlay(SND_MODESET);
+        sndHandle = nuAuStlSndPlayerPlay(SND_GAMESTR);
     }
 }
 

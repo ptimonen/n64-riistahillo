@@ -293,7 +293,7 @@ void endGraphicsTask(GraphicsTask* graphicsTask) {
 void renderGame(GraphicsTask* graphicsTask, struct GameState* gameState) {
     int i;
     if (!gameState->hideMeshes) {
-        drawLevel(graphicsTask, gameState->physics.deltaTime);
+        drawLevel(graphicsTask, gameState->deltaTime);
         for(i = 0; i < 4; ++i) {
             if (player_exists(&gameState->players[i])) {
                 drawPlayer(graphicsTask, &gameState->players[i]);
@@ -304,8 +304,8 @@ void renderGame(GraphicsTask* graphicsTask, struct GameState* gameState) {
 
 void renderMenu(GraphicsTask* graphicsTask, struct GameConfig* gameConfig, struct GameState* gameState) {
 
-    menuFloating += 5.0f * gameState->physics.deltaTime;
-    menuRotation += 33.0f * gameState->physics.deltaTime;
+    menuFloating += 5.0f * gameState->deltaTime;
+    menuRotation += 33.0f * gameState->deltaTime;
     pushTransform(
             graphicsTask,
             0.0f, // roll
@@ -478,8 +478,8 @@ void drawScore(GraphicsTask* graphicsTask, Player* player)
 void renderEnd(GraphicsTask* graphicsTask, struct GameState* gameState) {
     int i;
 
-    menuFloating += 5.0f * gameState->physics.deltaTime;
-    menuRotation += 33.0f * gameState->physics.deltaTime;
+    menuFloating += 5.0f * gameState->deltaTime;
+    menuRotation += 33.0f * gameState->deltaTime;
     pushTransform(
             graphicsTask,
             -90.0f, // roll
@@ -559,7 +559,7 @@ void render(struct ProgramState* programState) {
     setRenderAttributes();
 
     if(programState->gameState.camera.screenShake > 0) {
-        programState->gameState.camera.screenShake -= 2000.0f * programState->gameState.physics.deltaTime;
+        programState->gameState.camera.screenShake -= 2000.0f * programState->gameState.deltaTime;
     }
     else {
         programState->gameState.camera.screenShake = 0.0f;
@@ -584,5 +584,5 @@ void render(struct ProgramState* programState) {
     }
 
     endGraphicsTask(graphicsTask);
-    // drawDebugInfo();
+    drawDebugInfo();
 }

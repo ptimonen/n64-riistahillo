@@ -7,6 +7,8 @@
 #include "physics.h"
 #include "game_setup.h"
 
+#include <ultra64.h>
+
 void checkEndCondition(ProgramState* programState) {
     GameConfig* gameConfig = &programState->gameConfig;
     GameState* gameState = &programState->gameState;
@@ -30,26 +32,28 @@ void checkEndCondition(ProgramState* programState) {
 void gameLoop() {
     ProgramState* programState = &g_programState;
 
+    float timeNow = OS_CYCLES_TO_NSEC(osGetTime()) / 1e9f;
+    programState->gameState.deltaTime = timeNow - programState->gameState.lastTick;
+    programState->gameState.lastTick = timeNow;
+
+    updateAudio(programState->gameState.deltaTime);
+
     if(programState->gameState.freezeFrame > 0) {
         --programState->gameState.freezeFrame;
-        return;
     }
-
-    updatePhysics(&programState->gameState, programState->gameConfig.gameMode);
-    updateAudio(programState->gameState.physics.deltaTime);
-
-    if(programState->activeScreen == MENU) {
+    else if(programState->activeScreen == MENU) {
         updateMenuInput(programState);
     }
-    if(programState->activeScreen == LOADING) {
+    else if(programState->activeScreen == LOADING) {
         setupGameState(&programState->gameState, &programState->gameConfig);
         programState->activeScreen = GAME;
     }
-    if(programState->activeScreen == GAME) {
+    else if(programState->activeScreen == GAME) {
         updateGameInput(programState);
+        updatePhysics(&programState->gameState, programState->gameConfig.gameMode);
         checkEndCondition(programState);
     }
-    if(programState->activeScreen == END) {
+    else if(programState->activeScreen == END) {
         updateEndInput(programState);
     }
 }

@@ -67,7 +67,6 @@ void setupGameState(GameState* gameState, GameConfig* gameConfig) {
             gameState->players[i].health = 0;
             gameState->players[i].despawnTimer = 0.0f;
         }
-        // TODO: Set proper start locations
     }
     setupCamera(&gameState->camera);
     setupPhysics(&gameState->physics);
@@ -82,4 +81,6 @@ void setupProgramState(ProgramState* programState) {
     programState->activeScreen = MENU;
     setupGameConfig(&programState->gameConfig);
     setupGameState(&programState->gameState, &programState->gameConfig);
+    programState->gameState.deltaTime = 0.0f;
+    programState->gameState.lastTick = 0.0f;
 }
