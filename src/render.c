@@ -70,28 +70,28 @@ void popTransform() {
     gSPPopMatrix(g_dl++, G_MTX_MODELVIEW);
 }
 
-void drawCharacter(GraphicsTask* graphicsTask, Vec2f position, float scale, int playerIndex) {
+void drawCharacter(GraphicsTask* graphicsTask, Vec2f position, float scale, const Player* player) {
     pushTransform(
         graphicsTask,
-        0, // roll
-        -90.0f, // pitch
-        0.0f, // heading
+        -player->movementControl.y * 15.0f,
+        player->movementControl.x * 15.0f,
+        0.0f,
         scale,
         position.x,
         position.y,
-        0
+        0.0f
     );
 
-    if(playerIndex == 0) {
+    if(player->index == 0) {
         drawTexturedModel(Wtx_mask_player_1);
     }
-    else if(playerIndex == 1) {
+    else if(player->index == 1) {
         drawTexturedModel(Wtx_mask_player_2);
     }
-    else if(playerIndex == 2) {
+    else if(player->index == 2) {
         drawTexturedModel(Wtx_mask_player_3);
     }
-    else if(playerIndex == 3) {
+    else if(player->index == 3) {
         drawTexturedModel(Wtx_mask_player_4);
     }
 
@@ -225,7 +225,7 @@ void drawLevel(GraphicsTask* graphicsTask, float deltaTime)
 void drawPlayer(GraphicsTask* graphicsTask, const Player* player) {
     const Chain* chain = &player->chain;
     if((int)(player->invulnerabilityTimer * PLAYER_INVULNERABILITY_BLINK_HZ) % 2 == 0) {
-        drawCharacter(graphicsTask, chain->nodes[0].position, 2.3f, player->index);
+        drawCharacter(graphicsTask, chain->nodes[0].position, 2.3f, player);
     }
     drawDrum(
         graphicsTask,
@@ -384,7 +384,7 @@ void renderMenu(GraphicsTask* graphicsTask, struct GameConfig* gameConfig, struc
     pushTransform(
             graphicsTask,
             20.0f, // roll
-            -50.0f, // pitch
+            40.0f, // pitch
             -20.0f, // heading
             6.0f, // scale
             -900.0f, // x
@@ -397,8 +397,8 @@ void renderMenu(GraphicsTask* graphicsTask, struct GameConfig* gameConfig, struc
     pushTransform(
             graphicsTask,
             25.0f, // roll
-            -50.0f, // pitch
-            00.0f, // heading
+            40.0f, // pitch
+            20.0f, // heading
             6.0f, // scale
             -950.0f, // x
             50.0f - cosf(menuFloating + 0.5f) * 25.0f, // y
@@ -410,8 +410,8 @@ void renderMenu(GraphicsTask* graphicsTask, struct GameConfig* gameConfig, struc
     pushTransform(
             graphicsTask,
             -25.0f, // roll
-            -120.0f, // pitch
-            00.0f, // heading
+            -30.0f, // pitch
+            20.0f, // heading
             6.0f, // scale
             950.0f, // x
             -50.0f + cosf(menuFloating + 0.25f) * 25.0f, // y
@@ -423,8 +423,8 @@ void renderMenu(GraphicsTask* graphicsTask, struct GameConfig* gameConfig, struc
     pushTransform(
             graphicsTask,
             -20.0f, // roll
-            -120.0f, // pitch
-            20.0f, // heading
+            -30.0f, // pitch
+            -20.0f, // heading
             6.0f, // scale
             900.0f, // x
             -650.0f + cosf(menuFloating + 0.75f) * 25.0f, // y
@@ -479,7 +479,7 @@ void drawScore(GraphicsTask* graphicsTask, Player* player)
                 0.0f,
                 -90.0f,
                 0.0f,
-                7.5f,
+                1.875f,
                 200.0f,
                 170.0f - (228.0f * player->index),
                 0.0f
@@ -495,7 +495,7 @@ void drawScore(GraphicsTask* graphicsTask, Player* player)
                     0.0f,
                     -90.0f,
                     0.0f,
-                    7.5f,
+                    1.875f,
                     200.0f - (100.0f * i),
                     170.0f - (228.0f * player->index),
                     0.0f
@@ -547,7 +547,7 @@ void renderEnd(GraphicsTask* graphicsTask, struct GameState* gameState) {
             0.0f,
             -90.0f,
             0.0f,
-            7.5f,
+            1.875f,
             0.0f,
             0.0f,
             0.0f
