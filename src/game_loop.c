@@ -55,7 +55,7 @@ void trySpawnEnemy(GameState* gameState) {
             if (gameState->players[playerIndex].health > 0) {
                 float random = rand() / (float)RAND_MAX;
                 Vec2f direction = (Vec2f){cosf(2.0f * M_PI * random), sinf(2.0f * M_PI * random)};
-                Vec2f position = mul2f(direction, 1300.0f);
+                Vec2f position = mul2f(direction, 1500.0f);
                 enemy->health = 1;
                 enemy->despawnTimer = 3.0f;
                 enemy->targetPlayerIndex = playerIndex;
@@ -63,6 +63,19 @@ void trySpawnEnemy(GameState* gameState) {
                 enemy->verletBody.oldPosition = position;
                 enemy->bobTimer = 0.0f;
                 enemy->movementSpeed = 300.0f;
+                if(gameState->spawnsUntilNextBigEnemy == 0) {
+                    enemy->verletBody.mass = 100;
+                    enemy->verletBody.radius = 200;
+                    enemy->isBig = TRUE;
+                    gameState->spawnsUntilNextBigEnemy = BIG_ENEMY_SPAWN_INTERVAL;
+                } else {
+                    enemy->verletBody.mass = 10;
+                    enemy->verletBody.radius = 100;
+                    enemy->isBig = FALSE;
+                    --gameState->spawnsUntilNextBigEnemy;
+                }
+                enemy->rotation = 0.0f;
+                enemy->rotationSpeed = 0.0f;
                 gameState->nextEnemyTargetPlayerIndex = (playerIndex + 1) % MAX_PLAYERS;
                 return;
             }

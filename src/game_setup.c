@@ -5,7 +5,7 @@
 void setupChain(Chain* chain, Vec2f position) {
     int i;
     chain->nodeCount = CHAIN_MAX_NODE_COUNT;
-    chain->segmentLength = 70;
+    chain->segmentLength = SMALL_CHAIN_SEGMENT_LENGTH;
 
     for(i = 0; i < chain->nodeCount; ++i) {
         chain->nodes[i].position = add2f(position, (Vec2f){0, -i * chain->segmentLength});
@@ -19,7 +19,7 @@ void setupChain(Chain* chain, Vec2f position) {
 
     chain->nodes[0].radius = 100.0f;
     chain->nodes[0].mass = 100.0f;
-    chain->nodes[chain->nodeCount - 1].radius = 50.0f;
+    chain->nodes[chain->nodeCount - 1].radius = SMALL_BOULDER_RADIUS;
     chain->nodes[chain->nodeCount - 1].mass = 10.0f;
     chain->nodes[chain->nodeCount - 1].collisionMassMultiplier = 10.0f;
 }
@@ -44,8 +44,7 @@ void setupEnemy(Enemy* enemy) {
     enemy->health = 0;
     enemy->verletBody.position = (Vec2f){0, 0};
     enemy->verletBody.oldPosition = (Vec2f){0, 0};
-    enemy->verletBody.mass = 1;
-    enemy->verletBody.radius = 100.0f;
+    enemy->verletBody.mass = 10.0f;
     enemy->verletBody.bounciness = 0.5;
     enemy->verletBody.airResistance = 1.0f;
 }
@@ -67,11 +66,12 @@ void setupPhysics(Physics* physics) {
 }
 
 void setupGameState(GameState* gameState, GameConfig* gameConfig) {
-    static float enemySpawnIntervalForPlayerCount[] = {5.0f, 4.0f, 3.5f, 3.0f};
+    static float enemySpawnIntervalForPlayerCount[] = {1.0f, 0.9f, 0.85f, 0.8f};
     int i;
     gameState->hideMeshes = 0;
     gameState->nextEnemyTargetPlayerIndex = 0;
-    gameState->enemySpawnInterval = enemySpawnIntervalForPlayerCount[gameConfig->playerCount];
+    gameState->spawnsUntilNextBigEnemy = BIG_ENEMY_SPAWN_INTERVAL;
+    gameState->enemySpawnInterval = enemySpawnIntervalForPlayerCount[gameConfig->playerCount - 1];
     gameState->enemySpawnTimer = gameState->enemySpawnInterval;
     gameState->endTimer = 5.0f;
     for(i = 0; i < MAX_PLAYERS; ++i) {

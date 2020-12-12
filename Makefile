@@ -15,7 +15,7 @@ MAKEROM = mild
 
 NUAUDIOLIB = -lnualstl_n_d -ln_gmus_d -ln_gaudio_sc
 
-LCDEFS =	-DNU_DEBUG -DF3DEX_GBI_2
+LCDEFS =	-DF3DEX_GBI_2 # -DNU_DEBUG
 LCINCS =	-I. -I./src -I$(NUSYSINCDIR) -I$(NUSTDINCDIR) -I$(ROOT)/usr/include/PR
 LCOPTS =	-G 0 -O2
 

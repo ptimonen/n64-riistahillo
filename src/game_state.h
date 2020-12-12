@@ -9,6 +9,14 @@
 #define MAX_ENEMIES 16
 #define PLAYER_INVULNERABILITY_BLINK_HZ 4.0
 #define PLAYER_INVULNERABILITY_MASS_MULTIPLIER 0.05
+#define DAMAGE_THRESHOLD_SPEED 2300.0f
+#define BIG_ENEMY_SPAWN_INTERVAL 15
+#define BIG_BOULDER_DURATION 5.0f
+#define BIG_BOULDER_RADIUS 75.0f
+#define SMALL_BOULDER_RADIUS 50.0f
+#define SMALL_CHAIN_SEGMENT_LENGTH 75.0f
+#define BIG_CHAIN_SEGMENT_LENGTH 100.0f
+#define SMALL_TO_BIG_TRANSITION_TIME 0.5f
 
 typedef struct VerletBody {
     Vec2f position;
@@ -36,6 +44,7 @@ typedef struct Player {
     float movementSpeed;
     float invulnerabilityTimer;
     float despawnTimer;
+    float bigBoulderTimer;
     Vec2f movementControl;
     int health;
     int index;
@@ -58,6 +67,9 @@ static inline int player_exists(Player* player) {
 typedef struct Enemy {
     int targetPlayerIndex;
     int health;
+    int isBig;
+    float rotation;
+    float rotationSpeed;
     float despawnTimer;
     float bobTimer;
     float movementSpeed;
@@ -88,6 +100,7 @@ typedef struct Physics {
 typedef struct GameState {
     int hideMeshes;
     int nextEnemyTargetPlayerIndex;
+    int spawnsUntilNextBigEnemy;
     float enemySpawnInterval;
     float enemySpawnTimer;
     float endTimer;
