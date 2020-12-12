@@ -43,6 +43,7 @@
 #include "models/end/number_9.h"
 #include "models/end/text_score.h"
 #include "models/end/text_scores.h"
+#include "models/end/skull.h"
 #include "game_state.h"
 #include "graphics.h"
 #include "globals.h"
@@ -496,6 +497,21 @@ void drawScore(GraphicsTask* graphicsTask, Player* player)
             score /= 10;
             ++i;
         }
+    }
+
+    if(player->health <= 0) {
+        pushTransform(
+                graphicsTask,
+                0.0f,
+                -90.0f,
+                0.0f,
+                1.875f,
+                400.0f,
+                170.0f - (228.0f * player->index),
+                0.0f
+        );
+        drawTexturedModel(Wtx_skull);
+        popTransform();
     }
 }
 
