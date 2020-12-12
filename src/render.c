@@ -473,7 +473,7 @@ void drawScore(GraphicsTask* graphicsTask, Player* player)
                 0.0f,
                 -90.0f,
                 0.0f,
-                7.5f,
+                1.875f,
                 200.0f,
                 170.0f - (228.0f * player->index),
                 0.0f
@@ -489,7 +489,7 @@ void drawScore(GraphicsTask* graphicsTask, Player* player)
                     0.0f,
                     -90.0f,
                     0.0f,
-                    7.5f,
+                    1.875f,
                     200.0f - (100.0f * i),
                     170.0f - (228.0f * player->index),
                     0.0f
@@ -541,7 +541,7 @@ void renderEnd(GraphicsTask* graphicsTask, struct GameState* gameState) {
             0.0f,
             -90.0f,
             0.0f,
-            7.5f,
+            1.875f,
             0.0f,
             0.0f,
             0.0f
