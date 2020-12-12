@@ -17,8 +17,13 @@
 #define SMP_E_SPAWN2            0x000d
 #define SMP_E_SPAWN3            0x000e
 #define SMP_E_SPAWN4            0x000f
-#define SMP_MODESEL             0x0010
-#define SMP_P_SPAWN             0x0011
+#define SMP_GAMEEND             0x0010
+#define SMP_GAMESTR             0x0011
+#define SMP_MENU                0x0012
+#define SMP_MENUOK              0x0013
+#define SMP_MODESEL             0x0014
+#define SMP_MUSAT               0x0015
+#define SMP_P_SPAWN             0x0016
 
 
 /*
@@ -41,7 +46,12 @@ e_spawn1       Coarse   1,  Fine  47
 e_spawn2       Coarse   1,  Fine  47
 e_spawn3       Coarse   1,  Fine  47
 e_spawn4       Coarse   1,  Fine  47
+gameend        Coarse   1,  Fine  47
+gamestr        Coarse   1,  Fine  47
+menu           Coarse   1,  Fine  47
+menuok         Coarse   1,  Fine  47
 modesel        Coarse   1,  Fine  47
+musat          Coarse   1,  Fine  47
 p_spawn        Coarse   1,  Fine  47
 
 */

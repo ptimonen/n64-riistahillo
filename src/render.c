@@ -312,7 +312,7 @@ void endGraphicsTask(GraphicsTask* graphicsTask) {
 void renderGame(GraphicsTask* graphicsTask, struct GameState* gameState) {
     int i;
     if (!gameState->hideMeshes) {
-        drawLevel(graphicsTask, gameState->physics.deltaTime);
+        drawLevel(graphicsTask, gameState->deltaTime);
         for(i = 0; i < MAX_PLAYERS; ++i) {
             if (player_exists(&gameState->players[i])) {
                 drawPlayer(graphicsTask, &gameState->players[i]);
@@ -328,8 +328,8 @@ void renderGame(GraphicsTask* graphicsTask, struct GameState* gameState) {
 
 void renderMenu(GraphicsTask* graphicsTask, struct GameConfig* gameConfig, struct GameState* gameState) {
 
-    menuFloating += 5.0f * gameState->physics.deltaTime;
-    menuRotation += 33.0f * gameState->physics.deltaTime;
+    menuFloating += 5.0f * gameState->deltaTime;
+    menuRotation += 33.0f * gameState->deltaTime;
     pushTransform(
             graphicsTask,
             0.0f, // roll
@@ -348,7 +348,7 @@ void renderMenu(GraphicsTask* graphicsTask, struct GameConfig* gameConfig, struc
         0.0f, // roll
         -90.0f, // pitch
         0.0f, // heading
-        15.0f, // scale
+        3.75f, // scale
         0.0f, // x
         0.0f, // y
         0.0f  // z
@@ -469,7 +469,7 @@ void drawScore(GraphicsTask* graphicsTask, Player* player)
                 0.0f,
                 -90.0f,
                 0.0f,
-                15.0f,
+                7.5f,
                 200.0f,
                 170.0f - (228.0f * player->index),
                 0.0f
@@ -485,7 +485,7 @@ void drawScore(GraphicsTask* graphicsTask, Player* player)
                     0.0f,
                     -90.0f,
                     0.0f,
-                    15.0f,
+                    7.5f,
                     200.0f - (100.0f * i),
                     170.0f - (228.0f * player->index),
                     0.0f
@@ -502,8 +502,8 @@ void drawScore(GraphicsTask* graphicsTask, Player* player)
 void renderEnd(GraphicsTask* graphicsTask, struct GameState* gameState) {
     int i;
 
-    menuFloating += 5.0f * gameState->physics.deltaTime;
-    menuRotation += 33.0f * gameState->physics.deltaTime;
+    menuFloating += 5.0f * gameState->deltaTime;
+    menuRotation += 33.0f * gameState->deltaTime;
     pushTransform(
             graphicsTask,
             -90.0f, // roll
@@ -522,7 +522,7 @@ void renderEnd(GraphicsTask* graphicsTask, struct GameState* gameState) {
             0.0f,
             -90.0f,
             0.0f,
-            15.0f,
+            7.5f,
             0.0f,
             0.0f,
             0.0f
@@ -586,7 +586,7 @@ void render(struct ProgramState* programState) {
         programState->gameState.camera.screenShake = 3000.0f;
     }
     if(programState->gameState.camera.screenShake > 0) {
-        programState->gameState.camera.screenShake -= 2000.0f * programState->gameState.physics.deltaTime;
+        programState->gameState.camera.screenShake -= 2000.0f * programState->gameState.deltaTime;
     }
     else {
         programState->gameState.camera.screenShake = 0.0f;
@@ -611,4 +611,5 @@ void render(struct ProgramState* programState) {
     }
 
     endGraphicsTask(graphicsTask);
+    // drawDebugInfo();
 }

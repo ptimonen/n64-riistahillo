@@ -95,6 +95,8 @@ typedef struct GameState {
     Camera camera;
     Physics physics;
     int freezeFrame;
+    float deltaTime;
+    float lastTick;
 } GameState;
 
 typedef enum GameMode { SURVIVAL, BATTLE } GameMode;

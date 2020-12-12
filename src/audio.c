@@ -48,13 +48,34 @@ void initAudio()
     Rom2Ram((void *)SFX_START, (void *)sfx_buf,
             SFX_END-SFX_START);
     MusFxBankInitialize(sfx_buf);
+
+    softSoundPlaying = 0.0f;
+    musicTimer = 0.0f;
+    musicPlaying = 0;
 }
 
 void updateAudio(float deltaTime)
 {
-    if(softSoundPlaying > 0)
+    if(softSoundPlaying > 0.0f)
     {
         softSoundPlaying -= deltaTime;
+    }
+
+    musicTimer -= deltaTime;
+    if(musicTimer <= 0.0f) {
+        if(musicPlaying <= 0) {
+            --musicPlaying;
+            if(musicPlaying < -1) {
+                musicTimer = 19.0f;
+                sndHandle = nuAuStlSndPlayerPlay(SND_MUSAT);
+                musicPlaying = 1;
+            }
+        }
+        else {
+            //sndHandle = nuAuStlSndPlayerSndStop(SND_MUSAT, 0);
+            nuAuStlSndPlayerStop(0);
+            musicPlaying = 0;
+        }
     }
 }
 

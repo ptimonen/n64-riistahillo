@@ -18,8 +18,13 @@
 #define FX_E_SPAWN2             13
 #define FX_E_SPAWN3             14
 #define FX_E_SPAWN4             15
-#define FX_MODESEL              16
-#define FX_P_SPAWN              17
+#define FX_GAMEEND              16
+#define FX_GAMESTR              17
+#define FX_MENU                 18
+#define FX_MENUOK               19
+#define FX_MODESEL              20
+#define FX_MUSAT                21
+#define FX_P_SPAWN              22
 
 
 /* End Of File */
