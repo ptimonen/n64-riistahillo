@@ -6,6 +6,7 @@
 #define CHAIN_MAX_NODE_COUNT 8
 #define PLAYER_CHAIN_SEGMENT_LENGTH 150
 #define MAX_PLAYERS 4
+#define MAX_ENEMIES 16
 #define PLAYER_INVULNERABILITY_BLINK_HZ 4.0
 #define PLAYER_INVULNERABILITY_MASS_MULTIPLIER 0.05
 
@@ -15,7 +16,8 @@ typedef struct VerletBody {
     float mass;
     float radius;
     float bounciness;
-    int isStatic;
+    float airResistance;
+    float collisionMassMultiplier;
 } VerletBody;
 
 typedef struct ChainNode {
@@ -52,6 +54,19 @@ static inline int player_exists(Player* player) {
     return player->despawnTimer > 0.0f;
 }
 
+typedef struct Enemy {
+    int targetPlayerIndex;
+    int health;
+    float despawnTimer;
+    float bobTimer;
+    float movementSpeed;
+    VerletBody verletBody;
+} Enemy;
+
+static inline int enemy_exists(Enemy* enemy) {
+    return enemy->despawnTimer > 0.0f;
+}
+
 typedef struct Camera {
     Vec3f startPosition;
     Vec3f position;
@@ -71,8 +86,12 @@ typedef struct Physics {
 
 typedef struct GameState {
     int hideMeshes;
+    int nextEnemyTargetPlayerIndex;
+    float enemySpawnInterval;
+    float enemySpawnTimer;
     float endTimer;
-    Player players[4];
+    Player players[MAX_PLAYERS];
+    Enemy enemies[MAX_ENEMIES];
     Camera camera;
     Physics physics;
     int freezeFrame;

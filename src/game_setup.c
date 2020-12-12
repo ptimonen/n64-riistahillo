@@ -11,15 +11,17 @@ void setupChain(Chain* chain, Vec2f position) {
         chain->nodes[i].position = add2f(position, (Vec2f){0, -i * chain->segmentLength});
         chain->nodes[i].oldPosition = chain->nodes[i].position;
         chain->nodes[i].radius = 0;
-        chain->nodes[i].bounciness = 0.5f;
+        chain->nodes[i].bounciness = 0.8f;
         chain->nodes[i].mass = 1.0f;
-        chain->nodes[i].isStatic = FALSE;
+        chain->nodes[i].airResistance = 0.9999f;
+        chain->nodes[i].collisionMassMultiplier = 1.0f;
     }
 
     chain->nodes[0].radius = 100.0f;
     chain->nodes[0].mass = 100.0f;
     chain->nodes[chain->nodeCount - 1].radius = 50.0f;
-    chain->nodes[chain->nodeCount - 1].mass = 20.0f;
+    chain->nodes[chain->nodeCount - 1].mass = 10.0f;
+    chain->nodes[chain->nodeCount - 1].collisionMassMultiplier = 10.0f;
 }
 
 void setupPlayer(Player* player, int index) {
@@ -30,11 +32,22 @@ void setupPlayer(Player* player, int index) {
         {+800, -300},
     };
     player->index = index;
-    player->movementSpeed = 20.0f;
+    player->movementSpeed = 120.0f;
     player->movementControl = (Vec2f){0, 0};
     player->score = 0;
     player->invulnerabilityTimer = 0.0f;
     setupChain(&player->chain, startPositions[index]);
+}
+
+void setupEnemy(Enemy* enemy) {
+    enemy->despawnTimer = 0.0f;
+    enemy->health = 0;
+    enemy->verletBody.position = (Vec2f){0, 0};
+    enemy->verletBody.oldPosition = (Vec2f){0, 0};
+    enemy->verletBody.mass = 1;
+    enemy->verletBody.radius = 100.0f;
+    enemy->verletBody.bounciness = 0.5;
+    enemy->verletBody.airResistance = 1.0f;
 }
 
 void setupCamera(Camera* camera) {
@@ -45,7 +58,7 @@ void setupCamera(Camera* camera) {
 }
 
 void setupPhysics(Physics* physics) {
-    physics->verletConstraintIterations = 32;
+    physics->verletConstraintIterations = 16;
     physics->timeAtLastPhysicsUpdate = 0.0f;
     physics->deltaTime = 0.0f;
     physics->gravity = (Vec2f){0, -10};
@@ -54,8 +67,12 @@ void setupPhysics(Physics* physics) {
 }
 
 void setupGameState(GameState* gameState, GameConfig* gameConfig) {
+    static float enemySpawnIntervalForPlayerCount[] = {5.0f, 4.0f, 3.5f, 3.0f};
     int i;
     gameState->hideMeshes = 0;
+    gameState->nextEnemyTargetPlayerIndex = 0;
+    gameState->enemySpawnInterval = enemySpawnIntervalForPlayerCount[gameConfig->playerCount];
+    gameState->enemySpawnTimer = gameState->enemySpawnInterval;
     gameState->endTimer = 5.0f;
     for(i = 0; i < MAX_PLAYERS; ++i) {
         setupPlayer(&gameState->players[i], i);
@@ -68,6 +85,9 @@ void setupGameState(GameState* gameState, GameConfig* gameConfig) {
             gameState->players[i].despawnTimer = 0.0f;
         }
         // TODO: Set proper start locations
+    }
+    for(i = 0; i < MAX_ENEMIES; ++i) {
+        setupEnemy(&gameState->enemies[i]);
     }
     setupCamera(&gameState->camera);
     setupPhysics(&gameState->physics);

@@ -6,6 +6,7 @@
 #include <gbi.h>
 #include <math.h>
 
+#include "models/enemy/enemy.h"
 #include "models/placeholder_sphere/placeholder_sphere.h"
 #include "models/players/mask_player_1.h"
 #include "models/players/mask_player_2.h"
@@ -114,7 +115,6 @@ void drawDrum(GraphicsTask* graphicsTask, Vec2f chainPosition, Vec2f position, f
     popTransform();
 }
 
-// TODO: Use player index to draw all chains
 void drawChain(GraphicsTask* graphicsTask, const Chain* chain) {
     Vtx_t* vertexBuffer = graphicsTask->vertexBuffers[graphicsTask->vertexBufferIndex];
     const float thickness = 10;
@@ -228,6 +228,22 @@ void drawPlayer(GraphicsTask* graphicsTask, const Player* player) {
     drawHearts(graphicsTask, player);
 }
 
+void drawEnemy(GraphicsTask* graphicsTask, const Enemy* enemy) {
+    float scale = 0.023f * enemy->verletBody.radius;
+    pushTransform(
+        graphicsTask,
+        0, // roll
+        -90.0f, // pitch
+        0.0f, // heading
+        scale,
+        enemy->verletBody.position.x,
+        enemy->verletBody.position.y,
+        0
+    );
+    drawTexturedModel(Wtx_enemy);
+    popTransform();
+}
+
 void drawDebugInfo() {
     nuDebConTextColor(0, NU_DEB_CON_TEXT_GREEN);
     nuDebConDisp(NU_SC_SWAPBUFFER);
@@ -282,21 +298,29 @@ void endGraphicsTask(GraphicsTask* graphicsTask) {
 
     assert(g_dl - graphicsTask->displayList < MAX_DISPLAY_LIST_COMMANDS);
 
+//    nuDebConTextColor(0, NU_DEB_CON_TEXT_GREEN);
+    // nuDebConDisp(NU_SC_NOSWAPBUFFER);
     nuGfxTaskStart(
         graphicsTask->displayList,
         (int) (g_dl - graphicsTask->displayList) * sizeof(Gfx),
         NU_GFX_UCODE_F3DEX, // load the 'F3DEX' version graphics microcode, which runs on the RCP to process this display list
         NU_SC_SWAPBUFFER // tells NuSystem to immediately display the frame on screen after the RCP finishes rendering it
     );
+//    nuDebConClear(0);
 }
 
 void renderGame(GraphicsTask* graphicsTask, struct GameState* gameState) {
     int i;
     if (!gameState->hideMeshes) {
         drawLevel(graphicsTask, gameState->physics.deltaTime);
-        for(i = 0; i < 4; ++i) {
+        for(i = 0; i < MAX_PLAYERS; ++i) {
             if (player_exists(&gameState->players[i])) {
                 drawPlayer(graphicsTask, &gameState->players[i]);
+            }
+        }
+        for(i = 0; i < MAX_ENEMIES; ++i) {
+            if (enemy_exists(&gameState->enemies[i])) {
+                drawEnemy(graphicsTask, &gameState->enemies[i]);
             }
         }
     }
@@ -558,6 +582,9 @@ void render(struct ProgramState* programState) {
     loadViewMatrix(graphicsTask, &programState->gameState.camera);
     setRenderAttributes();
 
+    if(programState->gameState.camera.screenShake > 3000.0f) {
+        programState->gameState.camera.screenShake = 3000.0f;
+    }
     if(programState->gameState.camera.screenShake > 0) {
         programState->gameState.camera.screenShake -= 2000.0f * programState->gameState.physics.deltaTime;
     }
@@ -584,5 +611,4 @@ void render(struct ProgramState* programState) {
     }
 
     endGraphicsTask(graphicsTask);
-    // drawDebugInfo();
 }

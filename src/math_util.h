@@ -123,4 +123,9 @@ static inline float radToDeg(float radians) {
    return radians / 3.141592f * 180.0f;
 }
 
+static inline float smoothstep(float x, float min, float max) {
+    x = clamp((x - min) / (max - min), 0.0, 1.0);
+    return x * x * (3 - 2 * x);
+}
+
 #endif

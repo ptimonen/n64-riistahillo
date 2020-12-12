@@ -17,7 +17,7 @@ NUAUDIOLIB = -lnualstl_n_d -ln_gmus_d -ln_gaudio_sc
 
 LCDEFS =	-DNU_DEBUG -DF3DEX_GBI_2
 LCINCS =	-I. -I./src -I$(NUSYSINCDIR) -I$(NUSTDINCDIR) -I$(ROOT)/usr/include/PR
-LCOPTS =	-G 0
+LCOPTS =	-G 0 -O2
 
 LDFLAGS = $(MKDEPOPT) -L$(LIB) -L$(NUSYSLIBDIR) -L$(NUSTDLIBDIR) $(NUAUDIOLIB) -lnustd_d -lnusys_d -lgultra_d -L$(GCCDIR)/mipse/lib -lkmc
 

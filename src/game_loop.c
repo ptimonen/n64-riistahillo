@@ -1,5 +1,8 @@
 #include "game_loop.h"
 
+#include <stdlib.h>
+#include <math.h>
+
 #include "audio.h"
 #include "globals.h"
 #include "render.h"
@@ -27,12 +30,53 @@ void checkEndCondition(ProgramState* programState) {
     }
 }
 
+void trySpawnEnemy(GameState* gameState) {
+    int enemyIndex = 0;
+    if (gameState->enemySpawnTimer > 0.0f) {
+        gameState->enemySpawnTimer -= gameState->physics.deltaTime;
+        return;
+    }
+    gameState->enemySpawnTimer = gameState->enemySpawnInterval;
+    while(enemy_exists(&gameState->enemies[enemyIndex])) {
+        ++enemyIndex;
+        if(enemyIndex >= MAX_ENEMIES) {
+            return;
+        }
+    }
+    // Set enemy target round robin.
+    {
+        Enemy* enemy = &gameState->enemies[enemyIndex];
+        int i;
+        for (i = 0; i < MAX_PLAYERS; ++i) {
+            int playerIndex = (gameState->nextEnemyTargetPlayerIndex + i) % MAX_PLAYERS;
+            if (gameState->players[playerIndex].health > 0) {
+                float random = rand() / (float)RAND_MAX;
+                Vec2f direction = (Vec2f){cosf(2.0f * M_PI * random), sinf(2.0f * M_PI * random)};
+                Vec2f position = mul2f(direction, 1300.0f);
+                enemy->health = 1;
+                enemy->despawnTimer = 3.0f;
+                enemy->targetPlayerIndex = playerIndex;
+                enemy->verletBody.position = position;
+                enemy->verletBody.oldPosition = position;
+                enemy->bobTimer = 0.0f;
+                enemy->movementSpeed = 300.0f;
+                gameState->nextEnemyTargetPlayerIndex = (playerIndex + 1) % MAX_PLAYERS;
+                return;
+            }
+        }
+    }
+}
+
 void gameLoop() {
     ProgramState* programState = &g_programState;
 
     if(programState->gameState.freezeFrame > 0) {
         --programState->gameState.freezeFrame;
         return;
+    }
+
+    if(programState->activeScreen == GAME && programState->gameConfig.gameMode == SURVIVAL) {
+        trySpawnEnemy(&programState->gameState);
     }
 
     updatePhysics(&programState->gameState, programState->gameConfig.gameMode);
