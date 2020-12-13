@@ -81,10 +81,10 @@ void trySpawnEnemy(GameState* gameState) {
                 enemy->verletBody.position = position;
                 enemy->verletBody.oldPosition = position;
                 enemy->bobTimer = 0.0f;
-                enemy->movementSpeed = 300.0f;
                 if(gameState->spawnsUntilNextBigEnemy == 0) {
                     enemy->verletBody.mass = 100;
                     enemy->verletBody.radius = 200;
+                    enemy->movementSpeed = 200.0f;
                     enemy->isBig = TRUE;
                     gameState->spawnsUntilNextBigEnemy = BIG_ENEMY_SPAWN_INTERVAL;
                     sndHandle = nuAuStlSndPlayerPlay(SND_MODESET);
@@ -92,12 +92,15 @@ void trySpawnEnemy(GameState* gameState) {
                     enemy->verletBody.mass = 10;
                     if(gameState->enemySpawnInterval > 1.5f) {
                         enemy->verletBody.radius = 130;
+                        enemy->movementSpeed = 150.0f;
                     }
                     else if(gameState->enemySpawnInterval > 1.0f) {
                         enemy->verletBody.radius = 120;
+                        enemy->movementSpeed = 200.0f;
                     }
                     else {
                         enemy->verletBody.radius = 110;
+                        enemy->movementSpeed = 250.0f;
                     }
 
                     enemy->isBig = FALSE;
