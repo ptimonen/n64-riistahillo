@@ -85,3 +85,6 @@ DerivedData/
 *.sublime-workspace
 
 .idea/$CACHE_FILE$
+
+# Blender batch export script (GPL-licensed)
+scripts/blender_batch_export.py

@@ -51,7 +51,7 @@ beginseg
 endseg
 
 beginwave
-	name	"riistahillo"
+	name	"Kumi-Daiko Beatoff 64"
 	include	"code"
     include "bank_sfx_pbank"
     include "bank_sfx_wbank"

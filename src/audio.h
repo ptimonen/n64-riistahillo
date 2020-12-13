@@ -49,6 +49,7 @@ int ptr_buf[NU_AU_SAMPLE_SIZE];
 int sfx_buf[NU_AU_SE_SIZE];
 
 float softSoundPlaying;
+float drumvdrumPlaying;
 
 float musicTimer;
 int musicPlaying;
@@ -61,6 +62,10 @@ void playRandomDrumHard();
 void playRandomDrumSoft();
 void playRandomDeath();
 void playRandomEnemySpawn();
+void playRandomDrumHitDrum();
+void playRandomPlayerHitPlayer();
+void playRandomEnemyHitPlayer();
+void playRandomBigEnemyDeath();
 
 
 #endif

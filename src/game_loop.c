@@ -39,13 +39,32 @@ void trySpawnEnemy(GameState* gameState) {
         gameState->enemySpawnTimer -= gameState->physics.deltaTime;
         return;
     }
-    gameState->enemySpawnTimer = gameState->enemySpawnInterval;
+
     while(enemy_exists(&gameState->enemies[enemyIndex])) {
         ++enemyIndex;
         if(enemyIndex >= MAX_ENEMIES) {
             return;
         }
     }
+
+    gameState->enemySpawnTimer = gameState->enemySpawnInterval;
+    if(gameState->enemySpawnInterval > 2.5f) {
+        gameState->enemySpawnInterval -= 0.1f;
+    }
+    else if(gameState->enemySpawnInterval > 2.0f) {
+        gameState->enemySpawnInterval -= 0.075f;
+    }
+    else if(gameState->enemySpawnInterval > 1.0f) {
+        gameState->enemySpawnInterval -= 0.05f;
+    }
+    else if(gameState->enemySpawnInterval > 0.75f) {
+        gameState->enemySpawnInterval -= 0.01f;
+    }
+
+    if(gameState->enemySpawnInterval < 0.3f) {
+        gameState->enemySpawnInterval = 0.3f;
+    }
+
     // Set enemy target round robin.
     {
         Enemy* enemy = &gameState->enemies[enemyIndex];
@@ -55,14 +74,40 @@ void trySpawnEnemy(GameState* gameState) {
             if (gameState->players[playerIndex].health > 0) {
                 float random = rand() / (float)RAND_MAX;
                 Vec2f direction = (Vec2f){cosf(2.0f * M_PI * random), sinf(2.0f * M_PI * random)};
-                Vec2f position = mul2f(direction, 1300.0f);
+                Vec2f position = mul2f(direction, 1800.0f);
                 enemy->health = 1;
                 enemy->despawnTimer = 3.0f;
                 enemy->targetPlayerIndex = playerIndex;
                 enemy->verletBody.position = position;
                 enemy->verletBody.oldPosition = position;
                 enemy->bobTimer = 0.0f;
-                enemy->movementSpeed = 300.0f;
+                if(gameState->spawnsUntilNextBigEnemy == 0) {
+                    enemy->verletBody.mass = 100;
+                    enemy->verletBody.radius = 200;
+                    enemy->movementSpeed = 200.0f;
+                    enemy->isBig = TRUE;
+                    gameState->spawnsUntilNextBigEnemy = BIG_ENEMY_SPAWN_INTERVAL;
+                    sndHandle = nuAuStlSndPlayerPlay(SND_MODESET);
+                } else {
+                    enemy->verletBody.mass = 10;
+                    if(gameState->enemySpawnInterval > 1.5f) {
+                        enemy->verletBody.radius = 130;
+                        enemy->movementSpeed = 150.0f;
+                    }
+                    else if(gameState->enemySpawnInterval > 1.0f) {
+                        enemy->verletBody.radius = 120;
+                        enemy->movementSpeed = 200.0f;
+                    }
+                    else {
+                        enemy->verletBody.radius = 110;
+                        enemy->movementSpeed = 250.0f;
+                    }
+
+                    enemy->isBig = FALSE;
+                    --gameState->spawnsUntilNextBigEnemy;
+                }
+                enemy->rotation = 0.0f;
+                enemy->rotationSpeed = 0.0f;
                 gameState->nextEnemyTargetPlayerIndex = (playerIndex + 1) % MAX_PLAYERS;
                 return;
             }

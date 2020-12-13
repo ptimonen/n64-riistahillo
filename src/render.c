@@ -7,6 +7,11 @@
 #include <math.h>
 
 #include "models/enemy/enemy.h"
+#include "models/enemy/boom0.h"
+#include "models/enemy/boom1.h"
+#include "models/enemy/boom2.h"
+#include "models/enemy/boom3.h"
+#include "models/enemy/boom4.h"
 #include "models/placeholder_sphere/placeholder_sphere.h"
 #include "models/players/mask_player_1.h"
 #include "models/players/mask_player_2.h"
@@ -14,6 +19,7 @@
 #include "models/players/mask_player_4.h"
 #include "models/players/drum.h"
 #include "models/players/drum_waves.h"
+#include "models/players/drum_waves_low.h"
 #include "models/level/level.h"
 #include "models/level/level1.h"
 #include "models/level/level2.h"
@@ -70,28 +76,28 @@ void popTransform() {
     gSPPopMatrix(g_dl++, G_MTX_MODELVIEW);
 }
 
-void drawCharacter(GraphicsTask* graphicsTask, Vec2f position, float scale, int playerIndex) {
+void drawCharacter(GraphicsTask* graphicsTask, Vec2f position, float scale, const Player* player) {
     pushTransform(
         graphicsTask,
-        0, // roll
-        -90.0f, // pitch
-        0.0f, // heading
+        -player->movementControl.y * 15.0f,
+        player->movementControl.x * 15.0f,
+        0.0f,
         scale,
         position.x,
         position.y,
-        0
+        0.0f
     );
 
-    if(playerIndex == 0) {
+    if(player->index == 0) {
         drawTexturedModel(Wtx_mask_player_1);
     }
-    else if(playerIndex == 1) {
+    else if(player->index == 1) {
         drawTexturedModel(Wtx_mask_player_2);
     }
-    else if(playerIndex == 2) {
+    else if(player->index == 2) {
         drawTexturedModel(Wtx_mask_player_3);
     }
-    else if(playerIndex == 3) {
+    else if(player->index == 3) {
         drawTexturedModel(Wtx_mask_player_4);
     }
 
@@ -113,18 +119,17 @@ void drawDrum(GraphicsTask* graphicsTask, Vec2f chainPosition, Vec2f position, f
     );
 
     drawTexturedModel(Wtx_drum);
-    if(speed > 2300.0f) {
+    if(speed > DAMAGE_THRESHOLD_SPEED) {
         drawTexturedModel(Wtx_drum_waves);
+    }
+    else if(speed > DAMAGE_THRESHOLD_SPEED_LOW) {
+        drawTexturedModel(Wtx_drum_waves_low);
     }
     popTransform();
 }
 
-void drawChain(GraphicsTask* graphicsTask, const Chain* chain) {
+void drawChainWith(GraphicsTask* graphicsTask, const Chain* chain, int r, int g, int b, float thickness, int z) {
     Vtx_t* vertexBuffer = graphicsTask->vertexBuffers[graphicsTask->vertexBufferIndex];
-    const float thickness = 10;
-    const int r = 200;
-    const int g = 127;
-    const int b = 0;
     const int a = 255;
     int n = MIN(VERTEX_BUFFER_MAX_SIZE / 4, chain->nodeCount);
     int i;
@@ -140,20 +145,33 @@ void drawChain(GraphicsTask* graphicsTask, const Chain* chain) {
         Vec2f v2 = add2f(end, normal);
         Vec2f v3 = sub2f(end, normal);
 
-        vertexBuffer[i * 4 + 0] = (Vtx_t) {v0.x, v0.y, 0, 0, 0, 0, r, g, b, a};
-        vertexBuffer[i * 4 + 1] = (Vtx_t) {v1.x, v1.y, 0, 0, 0, 0, r, g, b, a};
-        vertexBuffer[i * 4 + 2] = (Vtx_t) {v2.x, v2.y, 0, 0, 0, 0, r, g, b, a};
-        vertexBuffer[i * 4 + 3] = (Vtx_t) {v3.x, v3.y, 0, 0, 0, 0, r, g, b, a};
+        vertexBuffer[i * 4 + 0] = (Vtx_t) {v0.x, v0.y, z, 0, 0, 0, r, g, b, a};
+        vertexBuffer[i * 4 + 1] = (Vtx_t) {v1.x, v1.y, z, 0, 0, 0, r, g, b, a};
+        vertexBuffer[i * 4 + 2] = (Vtx_t) {v2.x, v2.y, z, 0, 0, 0, r, g, b, a};
+        vertexBuffer[i * 4 + 3] = (Vtx_t) {v3.x, v3.y, z, 0, 0, 0, r, g, b, a};
     }
 
     gSPVertex(g_dl++, vertexBuffer, 4 * n, 0);
 
+    // Draw segments
     for (i = 0; i < n - 1; ++i) {
         int x = i * 4;
         gSP2Triangles(g_dl++, x + 0, x + 1, x + 2, 0, x + 2, x + 1, x + 3, 0);
     }
 
+    // Fill gaps between segments
+    for (i = 0; i < n - 2; ++i) {
+        int x = i * 4;
+        gSP2Triangles(g_dl++, x + 4, x + 2, x + 3, 0, x + 3, x + 5, x + 2, 0);
+    }
+
     ++graphicsTask->vertexBufferIndex;
+}
+
+void drawChain(GraphicsTask* graphicsTask, const Chain* chain) {
+    // Draw twice for cel shading.
+    drawChainWith(graphicsTask, chain, 0, 0, 0, 35.0f, -3);
+    drawChainWith(graphicsTask, chain, 200, 127, 0, 10.0f, 0);
 }
 
 void drawHearts(GraphicsTask* graphicsTask, const Player* player) {
@@ -186,6 +204,31 @@ void drawHearts(GraphicsTask* graphicsTask, const Player* player) {
             drawTexturedModel(Wtx_heart_p4);
         }
         popTransform();
+    }
+}
+
+void drawScoreUI(GraphicsTask* graphicsTask, Player* player)
+{
+    float x = -850.0f + (655.0f * player->index);
+    int i = 0;
+    int score = player->score;
+    while (score > 0) {
+        int digit = score % 10;
+        pushTransform(
+                graphicsTask,
+                0.0f,
+                -90.0f,
+                0.0f,
+                1.6f,
+                x - (75.0f * i),
+                650.0f,
+                100.0f
+        );
+        drawOneNumber(digit);
+        popTransform();
+
+        score /= 10;
+        ++i;
     }
 }
 
@@ -225,18 +268,25 @@ void drawLevel(GraphicsTask* graphicsTask, float deltaTime)
 void drawPlayer(GraphicsTask* graphicsTask, const Player* player) {
     const Chain* chain = &player->chain;
     if((int)(player->invulnerabilityTimer * PLAYER_INVULNERABILITY_BLINK_HZ) % 2 == 0) {
-        drawCharacter(graphicsTask, chain->nodes[0].position, 2.3f, player->index);
+        drawCharacter(graphicsTask, chain->nodes[0].position, 2.3f, player);
     }
-    drawDrum(graphicsTask, chain->nodes[chain->nodeCount - 2].position, chain->nodes[chain->nodeCount - 1].position, 2.0f, player->barrelSpeed);
+    drawDrum(
+        graphicsTask,
+        chain->nodes[chain->nodeCount - 2].position,
+        chain->nodes[chain->nodeCount - 1].position,
+        chain->nodes[chain->nodeCount - 1].radius / 25.0f,
+        player->barrelSpeed
+    );
     drawChain(graphicsTask, &player->chain);
     drawHearts(graphicsTask, player);
+    drawScoreUI(graphicsTask, player);
 }
 
 void drawEnemy(GraphicsTask* graphicsTask, const Enemy* enemy) {
     float scale = 0.023f * enemy->verletBody.radius;
     pushTransform(
         graphicsTask,
-        0, // roll
+        enemy->rotation, // roll
         -90.0f, // pitch
         0.0f, // heading
         scale,
@@ -244,7 +294,24 @@ void drawEnemy(GraphicsTask* graphicsTask, const Enemy* enemy) {
         enemy->verletBody.position.y,
         0
     );
-    drawTexturedModel(Wtx_enemy);
+    if(enemy->boomTimer <= 0.0f) {
+        drawTexturedModel(Wtx_enemy);
+    }
+    else if(enemy->boomTimer <= 0.1f){
+        drawTexturedModel(Wtx_boom4);
+    }
+    else if(enemy->boomTimer <= 0.2f){
+        drawTexturedModel(Wtx_boom3);
+    }
+    else if(enemy->boomTimer <= 0.3f){
+        drawTexturedModel(Wtx_boom2);
+    }
+    else if(enemy->boomTimer <= 0.4f){
+        drawTexturedModel(Wtx_boom1);
+    }
+    else{
+        drawTexturedModel(Wtx_boom0);
+    }
     popTransform();
 }
 
@@ -378,7 +445,7 @@ void renderMenu(GraphicsTask* graphicsTask, struct GameConfig* gameConfig, struc
     pushTransform(
             graphicsTask,
             20.0f, // roll
-            -50.0f, // pitch
+            40.0f, // pitch
             -20.0f, // heading
             6.0f, // scale
             -900.0f, // x
@@ -391,8 +458,8 @@ void renderMenu(GraphicsTask* graphicsTask, struct GameConfig* gameConfig, struc
     pushTransform(
             graphicsTask,
             25.0f, // roll
-            -50.0f, // pitch
-            00.0f, // heading
+            40.0f, // pitch
+            20.0f, // heading
             6.0f, // scale
             -950.0f, // x
             50.0f - cosf(menuFloating + 0.5f) * 25.0f, // y
@@ -404,8 +471,8 @@ void renderMenu(GraphicsTask* graphicsTask, struct GameConfig* gameConfig, struc
     pushTransform(
             graphicsTask,
             -25.0f, // roll
-            -120.0f, // pitch
-            00.0f, // heading
+            -30.0f, // pitch
+            20.0f, // heading
             6.0f, // scale
             950.0f, // x
             -50.0f + cosf(menuFloating + 0.25f) * 25.0f, // y
@@ -417,8 +484,8 @@ void renderMenu(GraphicsTask* graphicsTask, struct GameConfig* gameConfig, struc
     pushTransform(
             graphicsTask,
             -20.0f, // roll
-            -120.0f, // pitch
-            20.0f, // heading
+            -30.0f, // pitch
+            -20.0f, // heading
             6.0f, // scale
             900.0f, // x
             -650.0f + cosf(menuFloating + 0.75f) * 25.0f, // y
@@ -473,7 +540,7 @@ void drawScore(GraphicsTask* graphicsTask, Player* player)
                 0.0f,
                 -90.0f,
                 0.0f,
-                7.5f,
+                1.875f,
                 200.0f,
                 170.0f - (228.0f * player->index),
                 0.0f
@@ -489,7 +556,7 @@ void drawScore(GraphicsTask* graphicsTask, Player* player)
                     0.0f,
                     -90.0f,
                     0.0f,
-                    7.5f,
+                    1.875f,
                     200.0f - (100.0f * i),
                     170.0f - (228.0f * player->index),
                     0.0f
@@ -541,7 +608,7 @@ void renderEnd(GraphicsTask* graphicsTask, struct GameState* gameState) {
             0.0f,
             -90.0f,
             0.0f,
-            7.5f,
+            1.875f,
             0.0f,
             0.0f,
             0.0f

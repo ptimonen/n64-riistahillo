@@ -77,7 +77,7 @@ float checkImpactSpeed(VerletBody* verletBodyA, VerletBody* verletBodyB, const P
     }
 }
 
-void updateDamagePlayerToPlayer(Player* sourcePlayer, Player* targetPlayer, float speed, GameState* gameState) {
+void updateDamageToPlayer(Player* sourcePlayer, Player* targetPlayer, float speed, GameState* gameState) {
     Camera* camera = &gameState->camera;
 
     if(targetPlayer->health == 0 || speed <= 0.0f) {
@@ -85,18 +85,22 @@ void updateDamagePlayerToPlayer(Player* sourcePlayer, Player* targetPlayer, floa
     }
 
     if(targetPlayer->invulnerabilityTimer <= 0.0f) {
-        if (speed > 2300.0f) {
+        if (speed > DAMAGE_THRESHOLD_SPEED) {
 //        int i;
 //        for(i = 0; i < CHAIN_MAX_NODE_COUNT; ++i) {
 //            targetPlayer->chain.nodes[i].mass *= PLAYER_INVULNERABILITY_MASS_MULTIPLIER;
 //        }
-            playRandomDrumHard();
+            if(sourcePlayer) {
+                ++sourcePlayer->score;
+                playRandomDrumHard();
+            } else {
+                playRandomEnemyHitPlayer();
+            }
             targetPlayer->invulnerabilityTimer = 3.0f;
             --targetPlayer->health;
             if (targetPlayer->health <= 0) {
                 playRandomDeath();
             }
-            ++sourcePlayer->score;
             camera->screenShake = 600;
             gameState->freezeFrame = 12;
         } else if (speed > 0.1f){
@@ -106,13 +110,15 @@ void updateDamagePlayerToPlayer(Player* sourcePlayer, Player* targetPlayer, floa
     }
 }
 
-void constrainColliders(VerletBody* verletBodyA, VerletBody* verletBodyB, const Physics* physics, float massMultiplierA, float* relativeSpeedOut) {
+void updateDamageEnemyToPlayer(Player* targetPlayer, GameState* gameState) {
+    return updateDamageToPlayer(NULL, targetPlayer, 9999.f, gameState);
+}
+
+// Returns relative speed of the collision.
+float constrainColliders(VerletBody* verletBodyA, VerletBody* verletBodyB, const Physics* physics, float massMultiplierA) {
     float minSeparation = verletBodyA->radius + verletBodyB->radius;
     Vec2f delta = sub2f(verletBodyB->position, verletBodyA->position);
     float distanceSq = dot2f(delta, delta);
-    if(relativeSpeedOut != NULL) {
-        *relativeSpeedOut = 0.0f;
-    }
     if (distanceSq < minSeparation * minSeparation) {
         float distance = sqrtf(distanceSq);
         float distanceDelta = distance - minSeparation;
@@ -142,11 +148,10 @@ void constrainColliders(VerletBody* verletBodyA, VerletBody* verletBodyB, const 
 
             verletBodyA->oldPosition = sub2f(verletBodyA->position, newVelocityA);
             verletBodyB->oldPosition = sub2f(verletBodyB->position, newVelocityB);
-            if(relativeSpeedOut != NULL) {
-                *relativeSpeedOut = relativeSpeed;
-            }
+            return relativeSpeed;
         }
     }
+    return 0.0f;
 }
 
 
@@ -204,21 +209,46 @@ void updatePlayer(Player* player, const Physics* physics) {
 
     if(player->invulnerabilityTimer > 0.0f) {
         player->invulnerabilityTimer = MAX(0.0f, player->invulnerabilityTimer - physics->deltaTime);
-//        if(player->invulnerabilityTimer == 0.0f) {
-//            int i;
-//            for(i = 0; i < CHAIN_MAX_NODE_COUNT; ++i) {
-//                player->chain.nodes[i].mass /= PLAYER_INVULNERABILITY_MASS_MULTIPLIER;
-//            }
-//        }
     }
+
+    // Boulder size change.
+    {
+        VerletBody* boulder = player_getBoulder(player);
+        Chain* chain = &player->chain;
+        float boulderDelta = (BIG_BOULDER_RADIUS - SMALL_BOULDER_RADIUS) * physics->deltaTime / SMALL_TO_BIG_TRANSITION_TIME;
+        float chainDelta = (BIG_CHAIN_SEGMENT_LENGTH - SMALL_CHAIN_SEGMENT_LENGTH) * physics->deltaTime / SMALL_TO_BIG_TRANSITION_TIME;
+        if (player->bigBoulderTimer > 0.0f) {
+            player->bigBoulderTimer = MAX(0.0f, player->bigBoulderTimer - physics->deltaTime);
+            boulder->radius = MIN(BIG_BOULDER_RADIUS, boulder->radius + boulderDelta);
+            chain->segmentLength = MIN(BIG_CHAIN_SEGMENT_LENGTH, chain->segmentLength + chainDelta);
+
+        } else {
+            boulder->radius = MAX(SMALL_BOULDER_RADIUS, boulder->radius - boulderDelta);
+            chain->segmentLength = MAX(SMALL_CHAIN_SEGMENT_LENGTH, chain->segmentLength - chainDelta);
+        }
+    }
+
     if(player->health <= 0) {
         player->despawnTimer = MAX(0.0f, player->despawnTimer - physics->deltaTime);
     }
 }
 
-void killEnemy(Enemy* enemy) {
+void killEnemy(int boom, Enemy* enemy, GameState* gameState) {
+    enemy->rotationSpeed = 720.0f * (rand() / (float)RAND_MAX - 0.5f);
     enemy->health = 0;
-    enemy->despawnTimer = 3.0f;
+    if(boom) {
+        enemy->boomTimer = 0.45f;
+        enemy->despawnTimer = enemy->boomTimer;
+    }
+    else {
+        enemy->despawnTimer = 3.0f;
+    }
+    if(enemy->isBig) {
+        gameState->camera.screenShake = 800;
+        gameState->freezeFrame = 12;
+    } else {
+        gameState->camera.screenShake = 200;
+    }
 }
 
 void updateEnemy(Enemy* enemy, GameState* gameState) {
@@ -229,30 +259,36 @@ void updateEnemy(Enemy* enemy, GameState* gameState) {
     }
 
     if(enemy->health <= 0) {
+        enemy->despawnTimer = MAX(0.0f, enemy->despawnTimer - gameState->deltaTime);
+        if(enemy->boomTimer > 0.0f) {
+            // No physics on booming enemy
+            enemy->boomTimer = MAX(0.0f, enemy->boomTimer - gameState->deltaTime);
+            return;
+        }
         // Enemy is dead but has not despawned yet.
-        enemy->despawnTimer = MAX(0.0f, enemy->despawnTimer - physics->deltaTime);
+        enemy->rotation += enemy->rotationSpeed * physics->deltaTime;
         updateVerletBody(&enemy->verletBody, physics);
     } else {
         // Enemy is alive and should seek target player.
         Player* targetPlayer = &gameState->players[enemy->targetPlayerIndex];
         if (targetPlayer->health <= 0) {
             // Target player is dead.
-            killEnemy(enemy);
+            killEnemy(0, enemy, gameState);
         } else {
             // Move towards target player.
             Vec2f direction = normalize2f(
                 sub2f(player_getCharacter(targetPlayer)->position, enemy->verletBody.position));
             Vec2f velocity = mul2f(direction, physics->deltaTime * enemy->movementSpeed);
             Vec2f cross = (Vec2f) {-direction.y, direction.x};
-            Vec2f bob = mul2f(cross, 300.0f * physics->deltaTime * sinf(4.0f * enemy->bobTimer));
+            Vec2f bob = mul2f(cross, 500.0f * physics->deltaTime * sinf(4.0f * enemy->bobTimer));
+            enemy->verletBody.oldPosition = enemy->verletBody.position;
             enemy->verletBody.position = add2f(enemy->verletBody.position, add2f(velocity, bob));
-            enemy->verletBody.oldPosition = enemy->verletBody.position; // Enemy has no concept of velocity.
             enemy->bobTimer += physics->deltaTime;
         }
     }
 }
 
-void constrainPhysics(GameState* gameState) {
+void constrainPhysics(GameState* gameState, GameMode gameMode) {
     const Physics* physics = &gameState->physics;
     int i;
     int j;
@@ -266,23 +302,87 @@ void constrainPhysics(GameState* gameState) {
     for (i = 0; i < MAX_PLAYERS; ++i) {
         Player* playerA = &gameState->players[i];
         if(!player_exists(playerA)) continue;
-        constrainColliders(player_getBoulder(playerA), player_getCharacter(playerA), physics, 1.0f, NULL);
+        // Handle player-to-own-drum collision.
+        {
+            float relativeSpeed = constrainColliders(player_getBoulder(playerA), player_getCharacter(playerA), physics, 1.0f);
+            if(relativeSpeed > COLLISION_SOUND_SPEED_THRESHOLD) {
+                playRandomDrumSoft();
+            }
+        }
         for (j = i + 1; j < MAX_PLAYERS; ++j) {
             Player* playerB = &gameState->players[j];
             if (!player_exists(playerB)) continue;
-            constrainColliders(player_getCharacter(playerA), player_getCharacter(playerB), physics, 1.0f, NULL);
-            constrainColliders(player_getBoulder(playerA), player_getBoulder(playerB), physics, 1.0f, NULL);
+            // Handle player-to-player collision.
             {
-                float relativeSpeed = 0.0f;
-                constrainColliders(player_getBoulder(playerA), player_getCharacter(playerB), physics,
-                                   player_getBoulder(playerA)->collisionMassMultiplier, &relativeSpeed);
-                updateDamagePlayerToPlayer(playerA, playerB, relativeSpeed, gameState);
+                float relativeSpeed = constrainColliders(player_getCharacter(playerA), player_getCharacter(playerB), physics, 1.0f);
+                if(relativeSpeed > COLLISION_SOUND_SPEED_THRESHOLD) {
+                    playRandomPlayerHitPlayer();
+                }
             }
+            // Handle drum-to-drum collision.
             {
-                float relativeSpeed = 0.0f;
-                constrainColliders(player_getBoulder(playerB), player_getCharacter(playerA), physics,
-                                   player_getBoulder(playerB)->collisionMassMultiplier, &relativeSpeed);
-                updateDamagePlayerToPlayer(playerB, playerA, relativeSpeed, gameState);
+                float relativeSpeed = constrainColliders(player_getBoulder(playerA), player_getBoulder(playerB), physics, 1.0f);
+                if(relativeSpeed > DAMAGE_THRESHOLD_SPEED_LOW) {
+                    playRandomDrumHitDrum();
+                }
+                else if(relativeSpeed > COLLISION_SOUND_SPEED_THRESHOLD) {
+                    playRandomDrumSoft();
+                }
+            }
+            // Handle drum-to-other-player collision.
+            {
+                float relativeSpeed = constrainColliders(player_getBoulder(playerA), player_getCharacter(playerB), physics,
+                                   player_getBoulder(playerA)->collisionMassMultiplier);
+                if(gameMode == BATTLE) {
+                    updateDamageToPlayer(playerA, playerB, relativeSpeed, gameState);
+                } else if (relativeSpeed > 0.1f) {
+                    playRandomDrumSoft();
+                }
+            }
+            // Handle other-player-to-drum collision.
+            {
+                float relativeSpeed = constrainColliders(player_getBoulder(playerB), player_getCharacter(playerA), physics,
+                                   player_getBoulder(playerB)->collisionMassMultiplier);
+                if(gameMode == BATTLE) {
+                    updateDamageToPlayer(playerB, playerA, relativeSpeed, gameState);
+                } else if (relativeSpeed > 0.1f) {
+                    playRandomDrumSoft();
+                }
+            }
+        }
+        if(gameMode == SURVIVAL) {
+            for (j = 0; j < MAX_ENEMIES; ++j) {
+                Enemy* enemy = &gameState->enemies[j];
+                if (!enemy_exists(enemy)) continue;
+                if (enemy->boomTimer > 0.0f) continue;
+
+                // Check damage player -> enemy.
+                {
+                    float relativeSpeed = constrainColliders(player_getBoulder(playerA), &enemy->verletBody, physics,
+                                       player_getBoulder(playerA)->collisionMassMultiplier);
+                    if (((!enemy->isBig && relativeSpeed > DAMAGE_THRESHOLD_SPEED_LOW)
+                    || (enemy->isBig && relativeSpeed > DAMAGE_THRESHOLD_SPEED))
+                    && enemy->health > 0) {
+                        if(enemy->isBig) {
+                            playerA->bigBoulderTimer = BIG_BOULDER_DURATION;
+                            playRandomBigEnemyDeath();
+                        }
+                        playerA->score++;
+                        killEnemy(0, enemy, gameState);
+                        playRandomDrumHard();
+                    } else if(relativeSpeed > 0.1f && enemy->health > 0) {
+                        playRandomDrumSoft();
+                    }
+                }
+
+                // Check damage enemy -> player.
+                {
+                    float relativeSpeed = constrainColliders(&enemy->verletBody, player_getCharacter(playerA), physics, 10.0f);
+                    if (relativeSpeed > 0 && enemy->health > 0) {
+                        killEnemy(1, enemy, gameState);
+                        updateDamageEnemyToPlayer(playerA, gameState);
+                    }
+                }
             }
         }
     }
@@ -317,6 +417,6 @@ void updatePhysics(GameState* gameState, GameMode gameMode) {
     }
 
     for (i = 0; i < physics->verletConstraintIterations; ++i) {
-        constrainPhysics(gameState);
+        constrainPhysics(gameState, gameMode);
     }
 }
