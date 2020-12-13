@@ -39,13 +39,32 @@ void trySpawnEnemy(GameState* gameState) {
         gameState->enemySpawnTimer -= gameState->physics.deltaTime;
         return;
     }
-    gameState->enemySpawnTimer = gameState->enemySpawnInterval;
+
     while(enemy_exists(&gameState->enemies[enemyIndex])) {
         ++enemyIndex;
         if(enemyIndex >= MAX_ENEMIES) {
             return;
         }
     }
+
+    gameState->enemySpawnTimer = gameState->enemySpawnInterval;
+    if(gameState->enemySpawnInterval > 2.5f) {
+        gameState->enemySpawnInterval -= 0.1f;
+    }
+    else if(gameState->enemySpawnInterval > 2.0f) {
+        gameState->enemySpawnInterval -= 0.075f;
+    }
+    else if(gameState->enemySpawnInterval > 1.0f) {
+        gameState->enemySpawnInterval -= 0.05f;
+    }
+    else if(gameState->enemySpawnInterval > 0.75f) {
+        gameState->enemySpawnInterval -= 0.01f;
+    }
+
+    if(gameState->enemySpawnInterval < 0.3f) {
+        gameState->enemySpawnInterval = 0.3f;
+    }
+
     // Set enemy target round robin.
     {
         Enemy* enemy = &gameState->enemies[enemyIndex];
@@ -68,9 +87,19 @@ void trySpawnEnemy(GameState* gameState) {
                     enemy->verletBody.radius = 200;
                     enemy->isBig = TRUE;
                     gameState->spawnsUntilNextBigEnemy = BIG_ENEMY_SPAWN_INTERVAL;
+                    sndHandle = nuAuStlSndPlayerPlay(SND_MODESET);
                 } else {
                     enemy->verletBody.mass = 10;
-                    enemy->verletBody.radius = 100;
+                    if(gameState->enemySpawnInterval > 1.5f) {
+                        enemy->verletBody.radius = 130;
+                    }
+                    else if(gameState->enemySpawnInterval > 1.0f) {
+                        enemy->verletBody.radius = 120;
+                    }
+                    else {
+                        enemy->verletBody.radius = 110;
+                    }
+
                     enemy->isBig = FALSE;
                     --gameState->spawnsUntilNextBigEnemy;
                 }

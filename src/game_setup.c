@@ -67,7 +67,7 @@ void setupPhysics(Physics* physics) {
 }
 
 void setupGameState(GameState* gameState, GameConfig* gameConfig) {
-    static float enemySpawnIntervalForPlayerCount[] = {1.0f, 0.9f, 0.85f, 0.8f};
+    static float enemySpawnIntervalForPlayerCount[] = {3.1f, 3.0f, 2.9f, 2.9f};
     int i;
     gameState->hideMeshes = 0;
     gameState->nextEnemyTargetPlayerIndex = 0;
