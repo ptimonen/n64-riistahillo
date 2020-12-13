@@ -210,12 +210,6 @@ void updatePlayer(Player* player, const Physics* physics) {
 
     if(player->invulnerabilityTimer > 0.0f) {
         player->invulnerabilityTimer = MAX(0.0f, player->invulnerabilityTimer - physics->deltaTime);
-//        if(player->invulnerabilityTimer == 0.0f) {
-//            int i;
-//            for(i = 0; i < CHAIN_MAX_NODE_COUNT; ++i) {
-//                player->chain.nodes[i].mass /= PLAYER_INVULNERABILITY_MASS_MULTIPLIER;
-//            }
-//        }
     }
 
     // Boulder size change.
