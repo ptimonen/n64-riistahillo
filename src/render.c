@@ -163,7 +163,7 @@ void drawChainWith(GraphicsTask* graphicsTask, const Chain* chain, int r, int g,
 
 void drawChain(GraphicsTask* graphicsTask, const Chain* chain) {
     // Draw twice for cel shading.
-    drawChainWith(graphicsTask, chain, 0, 0, 0, 20.0f, -1);
+    drawChainWith(graphicsTask, chain, 0, 0, 0, 20.0f, -3);
     drawChainWith(graphicsTask, chain, 200, 127, 0, 10.0f, 0);
 }
 

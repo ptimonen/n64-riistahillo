@@ -322,8 +322,11 @@ void constrainPhysics(GameState* gameState, GameMode gameMode) {
             // Handle drum-to-drum collision.
             {
                 float relativeSpeed = constrainColliders(player_getBoulder(playerA), player_getBoulder(playerB), physics, 1.0f);
-                if(relativeSpeed > COLLISION_SOUND_SPEED_THRESHOLD) {
+                if(relativeSpeed > DAMAGE_THRESHOLD_SPEED_LOW) {
                     playRandomDrumHitDrum();
+                }
+                else if(relativeSpeed > COLLISION_SOUND_SPEED_THRESHOLD) {
+                    playRandomDrumSoft();
                 }
             }
             // Handle drum-to-other-player collision.
