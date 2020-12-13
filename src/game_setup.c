@@ -74,7 +74,7 @@ void setupGameState(GameState* gameState, GameConfig* gameConfig) {
     gameState->spawnsUntilNextBigEnemy = BIG_ENEMY_SPAWN_INTERVAL;
     gameState->enemySpawnInterval = enemySpawnIntervalForPlayerCount[gameConfig->playerCount - 1];
     gameState->enemySpawnTimer = gameState->enemySpawnInterval;
-    gameState->endTimer = 5.0f;
+    gameState->endTimer = 3.0f;
     for(i = 0; i < MAX_PLAYERS; ++i) {
         setupPlayer(&gameState->players[i], i);
         if((gameConfig->playerCount - 1) >= i ) {
