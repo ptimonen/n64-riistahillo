@@ -170,8 +170,8 @@ void drawChainWith(GraphicsTask* graphicsTask, const Chain* chain, int r, int g,
 
 void drawChain(GraphicsTask* graphicsTask, const Chain* chain) {
     // Draw twice for cel shading.
-    drawChainWith(graphicsTask, chain, 0, 0, 0, 32.0f, -3);
-    drawChainWith(graphicsTask, chain, 200, 127, 0, 7.0f, 0);
+    drawChainWith(graphicsTask, chain, 0, 0, 0, 35.0f, -3);
+    drawChainWith(graphicsTask, chain, 200, 127, 0, 10.0f, 0);
 }
 
 void drawHearts(GraphicsTask* graphicsTask, const Player* player) {
