@@ -50,15 +50,19 @@ void initAudio()
     MusFxBankInitialize(sfx_buf);
 
     softSoundPlaying = 0.0f;
+    drumvdrumPlaying = 0.0f;
     musicTimer = 0.0f;
     musicPlaying = 0;
 }
 
 void updateAudio(float deltaTime)
 {
-    if(softSoundPlaying > 0.0f)
-    {
+    if(softSoundPlaying > 0.0f) {
         softSoundPlaying -= deltaTime;
+    }
+
+    if(drumvdrumPlaying > 0.0f) {
+        drumvdrumPlaying -= deltaTime;
     }
 
     musicTimer -= deltaTime;
@@ -137,7 +141,10 @@ void playRandomEnemySpawn()
 
 void playRandomDrumHitDrum()
 {
-    nuAuStlSndPlayerPlay(SND_DRMVDRM);
+    if(drumvdrumPlaying <= 0) {
+        sndHandle = nuAuStlSndPlayerPlay(SND_DRMVDRM);
+        drumvdrumPlaying = 1.0f;
+    }
 }
 
 void playRandomPlayerHitPlayer()
@@ -147,10 +154,10 @@ void playRandomPlayerHitPlayer()
 
 void playRandomEnemyHitPlayer()
 {
-    playRandomEnemySpawn();
+    playRandomDeath();
 }
 
 void playRandomBigEnemyDeath()
 {
-    playRandomEnemySpawn();
+    sndHandle = nuAuStlSndPlayerPlay(SND_MENUOK);
 }
