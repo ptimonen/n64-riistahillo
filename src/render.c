@@ -207,6 +207,31 @@ void drawHearts(GraphicsTask* graphicsTask, const Player* player) {
     }
 }
 
+void drawScoreUI(GraphicsTask* graphicsTask, Player* player)
+{
+    float x = -850.0f + (655.0f * player->index);
+    int i = 0;
+    int score = player->score;
+    while (score > 0) {
+        int digit = score % 10;
+        pushTransform(
+                graphicsTask,
+                0.0f,
+                -90.0f,
+                0.0f,
+                1.6f,
+                x - (75.0f * i),
+                650.0f,
+                100.0f
+        );
+        drawOneNumber(digit);
+        popTransform();
+
+        score /= 10;
+        ++i;
+    }
+}
+
 void drawLevel(GraphicsTask* graphicsTask, float deltaTime)
 {
     int i;
@@ -254,6 +279,7 @@ void drawPlayer(GraphicsTask* graphicsTask, const Player* player) {
     );
     drawChain(graphicsTask, &player->chain);
     drawHearts(graphicsTask, player);
+    drawScoreUI(graphicsTask, player);
 }
 
 void drawEnemy(GraphicsTask* graphicsTask, const Enemy* enemy) {
