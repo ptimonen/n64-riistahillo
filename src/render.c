@@ -153,9 +153,16 @@ void drawChainWith(GraphicsTask* graphicsTask, const Chain* chain, int r, int g,
 
     gSPVertex(g_dl++, vertexBuffer, 4 * n, 0);
 
+    // Draw segments
     for (i = 0; i < n - 1; ++i) {
         int x = i * 4;
         gSP2Triangles(g_dl++, x + 0, x + 1, x + 2, 0, x + 2, x + 1, x + 3, 0);
+    }
+
+    // Fill gaps between segments
+    for (i = 0; i < n - 2; ++i) {
+        int x = i * 4;
+        gSP2Triangles(g_dl++, x + 4, x + 2, x + 3, 0, x + 3, x + 5, x + 2, 0);
     }
 
     ++graphicsTask->vertexBufferIndex;
@@ -163,8 +170,8 @@ void drawChainWith(GraphicsTask* graphicsTask, const Chain* chain, int r, int g,
 
 void drawChain(GraphicsTask* graphicsTask, const Chain* chain) {
     // Draw twice for cel shading.
-    drawChainWith(graphicsTask, chain, 0, 0, 0, 20.0f, -1);
-    drawChainWith(graphicsTask, chain, 200, 127, 0, 10.0f, 0);
+    drawChainWith(graphicsTask, chain, 0, 0, 0, 32.0f, -3);
+    drawChainWith(graphicsTask, chain, 200, 127, 0, 7.0f, 0);
 }
 
 void drawHearts(GraphicsTask* graphicsTask, const Player* player) {

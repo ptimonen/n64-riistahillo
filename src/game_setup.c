@@ -26,10 +26,11 @@ void setupChain(Chain* chain, Vec2f position) {
 
 void setupPlayer(Player* player, int index) {
     static const Vec2f startPositions[MAX_PLAYERS] = {
-        {-1000, +700},
-        {+1000, +700},
-        {-800, -300},
-        {+800, -300},
+        // Add 0.1f to eliminate floating point rounding issues in rope rendering.
+        {-1000.1f, +700.1f},
+        {+1000.1f, +700.1f},
+        {-800.1f, -300.1f},
+        {+800.1f, -300.f},
     };
     player->index = index;
     player->movementSpeed = 120.0f;
