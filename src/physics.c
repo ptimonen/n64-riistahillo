@@ -331,7 +331,9 @@ void constrainPhysics(GameState* gameState, GameMode gameMode) {
                     float relativeSpeed = 0.0f;
                     constrainColliders(player_getBoulder(playerA), &enemy->verletBody, physics,
                                        player_getBoulder(playerA)->collisionMassMultiplier, &relativeSpeed);
-                    if (relativeSpeed > DAMAGE_THRESHOLD_SPEED && enemy->health > 0) {
+                    if (((!enemy->isBig && relativeSpeed > DAMAGE_THRESHOLD_SPEED_LOW)
+                    || (enemy->isBig && relativeSpeed > DAMAGE_THRESHOLD_SPEED))
+                    && enemy->health > 0) {
                         if(enemy->isBig) {
                             playerA->bigBoulderTimer = BIG_BOULDER_DURATION;
                         }

@@ -14,6 +14,7 @@
 #include "models/players/mask_player_4.h"
 #include "models/players/drum.h"
 #include "models/players/drum_waves.h"
+#include "models/players/drum_waves_low.h"
 #include "models/level/level.h"
 #include "models/level/level1.h"
 #include "models/level/level2.h"
@@ -115,6 +116,9 @@ void drawDrum(GraphicsTask* graphicsTask, Vec2f chainPosition, Vec2f position, f
     drawTexturedModel(Wtx_drum);
     if(speed > DAMAGE_THRESHOLD_SPEED) {
         drawTexturedModel(Wtx_drum_waves);
+    }
+    else if(speed > DAMAGE_THRESHOLD_SPEED_LOW) {
+        drawTexturedModel(Wtx_drum_waves_low);
     }
     popTransform();
 }
