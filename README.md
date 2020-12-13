@@ -4,24 +4,26 @@
 
 ## About the game
 
-Kumi-Daiko Beatoff 64 (組太鼓・ビートオフ 64) is a physics-based combat game in which one to four players try to survive endless waves tengu-masks and battle against each other using their Kumi-Daiko drums in two different game modes.
+It's a Bumpin', Boomin', Blastin' Beatoff! The mythical Super Percussion Cousins collide in this ultimate showdown of whippiness and cunning! Up to four players can choose their favorite animal face - complete with their own color - and go at it in Survival mode and last-mask-standing Battles. Or beat away at angry masks that would rather have you quiet in single-player mode. Either way, Kumi-Daiko Beatoff 64 is a no-barrels-held whip-fest that will keep you coming back for more!
 
-This Nintendo 64 homebrew game was developed during the N64 Game Jam in 2020.
+Whip out your instrument and bust into battle with your favorite mask: Fox, Cat, Owl or Monkey! ...not that there’s any mechanical difference.
+Hit a mask with a high-velocity drum to beat some life out of it!
+Avoid other players’ whipping instruments & use your drum as a shield from danger
+Compete in the state of the art 64-bit arena until the end of time, having fun whackin’ with everyone you love!
 
 ##### Game modes:
-- Survival (1-4 players): Crush ever-increasing waves of enemies alone or together, and aim for a new high scrore. Watch out for the big ones!
 
-- Battle (2-4 players): Fight against other players and try to be the last man standing. Each hit for another player will net you a point.
+- Survival: 1-4 players – destroy angry masks
+- Battle: 2-4 players - fight against other players
 
 ##### Controls:
 
-- DPad: Menu selection
+- D-pad: Menu selection
 - A: Select game mode
 - Stick: Move player
 - Start: Stop round
 
-For more details and a pre-build ROM, see:
-https://zhamul.itch.io/kumi-daiko-beatoff-64
+This game is an entry for the first ever N64brew Game Jam. See: https://zhamul.itch.io/kumi-daiko-beatoff-64
 
 ## Building from source
 
