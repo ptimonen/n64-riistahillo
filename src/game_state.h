@@ -18,6 +18,7 @@
 #define SMALL_CHAIN_SEGMENT_LENGTH 75.0f
 #define BIG_CHAIN_SEGMENT_LENGTH 100.0f
 #define SMALL_TO_BIG_TRANSITION_TIME 0.5f
+#define COLLISION_SOUND_SPEED_THRESHOLD 100.0f
 
 typedef struct VerletBody {
     Vec2f position;

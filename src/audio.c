@@ -82,7 +82,7 @@ void updateAudio(float deltaTime)
 void playRandomDrumHard()
 {
     int r;
-    r = RAND(5);
+    r = RAND(6);
     switch(r)
     {
         case 0: sndHandle = nuAuStlSndPlayerPlay(SND_DRUMHRD1); break;
@@ -98,7 +98,7 @@ void playRandomDrumSoft()
 {
     if(softSoundPlaying <= 0) {
         int r;
-        r = RAND(1);
+        r = RAND(2);
         switch (r) {
             case 0:
                 sndHandle = nuAuStlSndPlayerPlay(SND_DRUMSFT1);
@@ -114,7 +114,7 @@ void playRandomDrumSoft()
 void playRandomDeath()
 {
     int r;
-    r = RAND(1);
+    r = RAND(2);
     switch(r)
     {
         case 0: sndHandle = nuAuStlSndPlayerPlay(SND_DIE1); break;
@@ -125,7 +125,7 @@ void playRandomDeath()
 void playRandomEnemySpawn()
 {
     int r;
-    r = RAND(3);
+    r = RAND(4);
     switch(r)
     {
         case 0: sndHandle = nuAuStlSndPlayerPlay(SND_E_SPAWN1); break;
@@ -133,4 +133,19 @@ void playRandomEnemySpawn()
         case 2: sndHandle = nuAuStlSndPlayerPlay(SND_E_SPAWN3); break;
         case 3: sndHandle = nuAuStlSndPlayerPlay(SND_E_SPAWN4); break;
     }
+}
+
+void playRandomDrumHitDrum()
+{
+    nuAuStlSndPlayerPlay(SND_DRMVDRM);
+}
+
+void playRandomPlayerHitPlayer()
+{
+    playRandomDrumSoft();
+}
+
+void playRandomBigEnemyDeath()
+{
+    playRandomEnemySpawn();
 }

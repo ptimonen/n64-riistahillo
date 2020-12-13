@@ -74,7 +74,7 @@ void trySpawnEnemy(GameState* gameState) {
             if (gameState->players[playerIndex].health > 0) {
                 float random = rand() / (float)RAND_MAX;
                 Vec2f direction = (Vec2f){cosf(2.0f * M_PI * random), sinf(2.0f * M_PI * random)};
-                Vec2f position = mul2f(direction, 1500.0f);
+                Vec2f position = mul2f(direction, 1800.0f);
                 enemy->health = 1;
                 enemy->despawnTimer = 3.0f;
                 enemy->targetPlayerIndex = playerIndex;

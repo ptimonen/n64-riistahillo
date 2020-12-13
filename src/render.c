@@ -123,12 +123,8 @@ void drawDrum(GraphicsTask* graphicsTask, Vec2f chainPosition, Vec2f position, f
     popTransform();
 }
 
-void drawChain(GraphicsTask* graphicsTask, const Chain* chain) {
+void drawChainWith(GraphicsTask* graphicsTask, const Chain* chain, int r, int g, int b, float thickness, int z) {
     Vtx_t* vertexBuffer = graphicsTask->vertexBuffers[graphicsTask->vertexBufferIndex];
-    const float thickness = 10;
-    const int r = 200;
-    const int g = 127;
-    const int b = 0;
     const int a = 255;
     int n = MIN(VERTEX_BUFFER_MAX_SIZE / 4, chain->nodeCount);
     int i;
@@ -144,10 +140,10 @@ void drawChain(GraphicsTask* graphicsTask, const Chain* chain) {
         Vec2f v2 = add2f(end, normal);
         Vec2f v3 = sub2f(end, normal);
 
-        vertexBuffer[i * 4 + 0] = (Vtx_t) {v0.x, v0.y, 0, 0, 0, 0, r, g, b, a};
-        vertexBuffer[i * 4 + 1] = (Vtx_t) {v1.x, v1.y, 0, 0, 0, 0, r, g, b, a};
-        vertexBuffer[i * 4 + 2] = (Vtx_t) {v2.x, v2.y, 0, 0, 0, 0, r, g, b, a};
-        vertexBuffer[i * 4 + 3] = (Vtx_t) {v3.x, v3.y, 0, 0, 0, 0, r, g, b, a};
+        vertexBuffer[i * 4 + 0] = (Vtx_t) {v0.x, v0.y, z, 0, 0, 0, r, g, b, a};
+        vertexBuffer[i * 4 + 1] = (Vtx_t) {v1.x, v1.y, z, 0, 0, 0, r, g, b, a};
+        vertexBuffer[i * 4 + 2] = (Vtx_t) {v2.x, v2.y, z, 0, 0, 0, r, g, b, a};
+        vertexBuffer[i * 4 + 3] = (Vtx_t) {v3.x, v3.y, z, 0, 0, 0, r, g, b, a};
     }
 
     gSPVertex(g_dl++, vertexBuffer, 4 * n, 0);
@@ -158,6 +154,12 @@ void drawChain(GraphicsTask* graphicsTask, const Chain* chain) {
     }
 
     ++graphicsTask->vertexBufferIndex;
+}
+
+void drawChain(GraphicsTask* graphicsTask, const Chain* chain) {
+    // Draw twice for cel shading.
+    drawChainWith(graphicsTask, chain, 0, 0, 0, 20.0f, -1);
+    drawChainWith(graphicsTask, chain, 200, 127, 0, 10.0f, 0);
 }
 
 void drawHearts(GraphicsTask* graphicsTask, const Player* player) {
