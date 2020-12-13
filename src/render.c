@@ -228,7 +228,41 @@ void drawHearts(GraphicsTask* graphicsTask, const Player* player) {
     }
 }
 
-void drawScoreUI(GraphicsTask* graphicsTask, Player* player)
+void drawOneNumber(int number)
+{
+    if(number == 0) {
+        drawTexturedModel(Wtx_number_0);
+    }
+    else if(number == 1) {
+        drawTexturedModel(Wtx_number_1);
+    }
+    else if(number == 2) {
+        drawTexturedModel(Wtx_number_2);
+    }
+    else if(number == 3) {
+        drawTexturedModel(Wtx_number_3);
+    }
+    else if(number == 4) {
+        drawTexturedModel(Wtx_number_4);
+    }
+    else if(number == 5) {
+        drawTexturedModel(Wtx_number_5);
+    }
+    else if(number == 6) {
+        drawTexturedModel(Wtx_number_6);
+    }
+    else if(number == 7) {
+        drawTexturedModel(Wtx_number_7);
+    }
+    else if(number == 8) {
+        drawTexturedModel(Wtx_number_8);
+    }
+    else if(number == 9) {
+        drawTexturedModel(Wtx_number_9);
+    }
+}
+
+void drawScoreUI(GraphicsTask* graphicsTask, const Player* player)
 {
     float x = -850.0f + (655.0f * player->index);
     int i = 0;
@@ -536,40 +570,6 @@ void renderMenu(GraphicsTask* graphicsTask, struct GameConfig* gameConfig, struc
     );
     drawTexturedModel(Wtx_mask_player_4);
     popTransform();
-}
-
-void drawOneNumber(int number)
-{
-    if(number == 0) {
-        drawTexturedModel(Wtx_number_0);
-    }
-    else if(number == 1) {
-        drawTexturedModel(Wtx_number_1);
-    }
-    else if(number == 2) {
-        drawTexturedModel(Wtx_number_2);
-    }
-    else if(number == 3) {
-        drawTexturedModel(Wtx_number_3);
-    }
-    else if(number == 4) {
-        drawTexturedModel(Wtx_number_4);
-    }
-    else if(number == 5) {
-        drawTexturedModel(Wtx_number_5);
-    }
-    else if(number == 6) {
-        drawTexturedModel(Wtx_number_6);
-    }
-    else if(number == 7) {
-        drawTexturedModel(Wtx_number_7);
-    }
-    else if(number == 8) {
-        drawTexturedModel(Wtx_number_8);
-    }
-    else if(number == 9) {
-        drawTexturedModel(Wtx_number_9);
-    }
 }
 
 void drawScore(GraphicsTask* graphicsTask, Player* player)

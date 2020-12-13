@@ -90,6 +90,7 @@ void updateDamageToPlayer(Player* sourcePlayer, Player* targetPlayer, float spee
 //        for(i = 0; i < CHAIN_MAX_NODE_COUNT; ++i) {
 //            targetPlayer->chain.nodes[i].mass *= PLAYER_INVULNERABILITY_MASS_MULTIPLIER;
 //        }
+            targetPlayer->bigBoulderTimer = 0.0f;
             if(sourcePlayer) {
                 ++sourcePlayer->score;
                 playRandomDrumHard();
