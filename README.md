@@ -1,7 +1,5 @@
 # Kumi-Daiko Beatoff 64
 
-![Screenshot of cover art](media/cover-art.png =250x250)
-
 <img src="media/cover-art.png" height="400" alt="Screenshot of cover art"/>
 
 ## About the game
