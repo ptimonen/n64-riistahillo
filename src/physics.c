@@ -234,10 +234,16 @@ void updatePlayer(Player* player, const Physics* physics) {
     }
 }
 
-void killEnemy(Enemy* enemy, GameState* gameState) {
+void killEnemy(int boom, Enemy* enemy, GameState* gameState) {
     enemy->rotationSpeed = 720.0f * (rand() / (float)RAND_MAX - 0.5f);
     enemy->health = 0;
-    enemy->despawnTimer = 3.0f;
+    if(boom) {
+        enemy->boomTimer = 0.45f;
+        enemy->despawnTimer = enemy->boomTimer;
+    }
+    else {
+        enemy->despawnTimer = 3.0f;
+    }
     if(enemy->isBig) {
         gameState->camera.screenShake = 800;
         gameState->freezeFrame = 12;
@@ -254,16 +260,21 @@ void updateEnemy(Enemy* enemy, GameState* gameState) {
     }
 
     if(enemy->health <= 0) {
+        enemy->despawnTimer = MAX(0.0f, enemy->despawnTimer - gameState->deltaTime);
+        if(enemy->boomTimer > 0.0f) {
+            // No physics on booming enemy
+            enemy->boomTimer = MAX(0.0f, enemy->boomTimer - gameState->deltaTime);
+            return;
+        }
         // Enemy is dead but has not despawned yet.
         enemy->rotation += enemy->rotationSpeed * physics->deltaTime;
-        enemy->despawnTimer = MAX(0.0f, enemy->despawnTimer - physics->deltaTime);
         updateVerletBody(&enemy->verletBody, physics);
     } else {
         // Enemy is alive and should seek target player.
         Player* targetPlayer = &gameState->players[enemy->targetPlayerIndex];
         if (targetPlayer->health <= 0) {
             // Target player is dead.
-            killEnemy(enemy, gameState);
+            killEnemy(0, enemy, gameState);
         } else {
             // Move towards target player.
             Vec2f direction = normalize2f(
@@ -319,6 +330,7 @@ void constrainPhysics(GameState* gameState, GameMode gameMode) {
             for (j = 0; j < MAX_ENEMIES; ++j) {
                 Enemy* enemy = &gameState->enemies[j];
                 if (!enemy_exists(enemy)) continue;
+                if (enemy->boomTimer > 0.0f) continue;
 
                 // Check damage player -> enemy.
                 {
@@ -332,7 +344,7 @@ void constrainPhysics(GameState* gameState, GameMode gameMode) {
                             playerA->bigBoulderTimer = BIG_BOULDER_DURATION;
                         }
                         playerA->score++;
-                        killEnemy(enemy, gameState);
+                        killEnemy(0, enemy, gameState);
                         playRandomDrumHard();
                     } else {
                         playRandomDrumSoft();
@@ -344,7 +356,7 @@ void constrainPhysics(GameState* gameState, GameMode gameMode) {
                     float relativeSpeed = 0.0f;
                     constrainColliders(&enemy->verletBody, player_getCharacter(playerA), physics, 10.0f, &relativeSpeed);
                     if (relativeSpeed > 0 && enemy->health > 0) {
-                        killEnemy(enemy, gameState);
+                        killEnemy(1, enemy, gameState);
                         updateDamageEnemyToPlayer(playerA, gameState);
                     }
                 }

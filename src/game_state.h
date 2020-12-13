@@ -69,6 +69,7 @@ typedef struct Enemy {
     int targetPlayerIndex;
     int health;
     int isBig;
+    float boomTimer;
     float rotation;
     float rotationSpeed;
     float despawnTimer;
