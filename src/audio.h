@@ -63,6 +63,7 @@ void playRandomDeath();
 void playRandomEnemySpawn();
 void playRandomDrumHitDrum();
 void playRandomPlayerHitPlayer();
+void playRandomEnemyHitPlayer();
 void playRandomBigEnemyDeath();
 
 

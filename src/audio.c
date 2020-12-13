@@ -145,6 +145,11 @@ void playRandomPlayerHitPlayer()
     playRandomDrumSoft();
 }
 
+void playRandomEnemyHitPlayer()
+{
+    playRandomEnemySpawn();
+}
+
 void playRandomBigEnemyDeath()
 {
     playRandomEnemySpawn();

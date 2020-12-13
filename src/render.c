@@ -7,6 +7,11 @@
 #include <math.h>
 
 #include "models/enemy/enemy.h"
+#include "models/enemy/boom0.h"
+#include "models/enemy/boom1.h"
+#include "models/enemy/boom2.h"
+#include "models/enemy/boom3.h"
+#include "models/enemy/boom4.h"
 #include "models/placeholder_sphere/placeholder_sphere.h"
 #include "models/players/mask_player_1.h"
 #include "models/players/mask_player_2.h"
@@ -256,7 +261,24 @@ void drawEnemy(GraphicsTask* graphicsTask, const Enemy* enemy) {
         enemy->verletBody.position.y,
         0
     );
-    drawTexturedModel(Wtx_enemy);
+    if(enemy->boomTimer <= 0.0f) {
+        drawTexturedModel(Wtx_enemy);
+    }
+    else if(enemy->boomTimer <= 0.1f){
+        drawTexturedModel(Wtx_boom4);
+    }
+    else if(enemy->boomTimer <= 0.2f){
+        drawTexturedModel(Wtx_boom3);
+    }
+    else if(enemy->boomTimer <= 0.3f){
+        drawTexturedModel(Wtx_boom2);
+    }
+    else if(enemy->boomTimer <= 0.4f){
+        drawTexturedModel(Wtx_boom1);
+    }
+    else{
+        drawTexturedModel(Wtx_boom0);
+    }
     popTransform();
 }
 
