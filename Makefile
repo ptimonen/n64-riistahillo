@@ -13,19 +13,19 @@ CC  = gcc
 LD  = ld
 MAKEROM = mild
 
-NUAUDIOLIB = -lnualstl_n_d -ln_gmus_d -ln_gaudio_sc
+NUAUDIOLIB = -lnualstl_n -ln_gmus -ln_gaudio_sc
 
-LCDEFS =	-DF3DEX_GBI_2 # -DNU_DEBUG
+LCDEFS =	-DF3DEX_GBI_2 # -DNU_DEBUG -D_FINALROM
 LCINCS =	-I. -I./src -I$(NUSYSINCDIR) -I$(NUSTDINCDIR) -I$(ROOT)/usr/include/PR
 LCOPTS =	-G 0 -O2
 
-LDFLAGS = $(MKDEPOPT) -L$(LIB) -L$(NUSYSLIBDIR) -L$(NUSTDLIBDIR) $(NUAUDIOLIB) -lnustd_d -lnusys_d -lgultra_d -L$(GCCDIR)/mipse/lib -lkmc
+LDFLAGS = $(MKDEPOPT) -L$(LIB) -L$(NUSYSLIBDIR) -L$(NUSTDLIBDIR) $(NUAUDIOLIB) -lnustd -lnusys -lgultra -L$(GCCDIR)/mipse/lib -lkmc
 
 OPTIMIZER =	-g
 
-APP =		riistahillo.out
+APP =		Kumi-Daiko-Beatoff-64.out
 
-TARGETS =	riistahillo.n64
+TARGETS =	Kumi-Daiko-Beatoff-64.n64
 
 CODEFILES   = 	$(wildcard src/*.c)
 
