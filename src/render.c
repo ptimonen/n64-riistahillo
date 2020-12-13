@@ -72,6 +72,27 @@ void pushTransform(GraphicsTask* graphicsTask, float roll, float pitch, float he
     ++graphicsTask->matrixIndex;
 }
 
+void pushLookAt(GraphicsTask* graphicsTask, Vec3f eye, Vec3f target, Vec3f up) {
+    guLookAt(&graphicsTask->objectTransforms[graphicsTask->matrixIndex],
+             eye.x, eye.y, eye.z, target.x, target.y, target.z, up.x, up.y, up.z);
+    gSPMatrix(
+        g_dl++,
+        OS_K0_TO_PHYSICAL(&graphicsTask->objectTransforms[graphicsTask->matrixIndex]),
+        G_MTX_MODELVIEW | G_MTX_PUSH | G_MTX_MUL
+    );
+    ++graphicsTask->matrixIndex;
+}
+
+void pushRotation(GraphicsTask* graphicsTask, float angle, Vec3f axis) {
+    guRotate(&graphicsTask->objectTransforms[graphicsTask->matrixIndex], angle, axis.x, axis.y, axis.z);
+    gSPMatrix(
+        g_dl++,
+        OS_K0_TO_PHYSICAL(&graphicsTask->objectTransforms[graphicsTask->matrixIndex]),
+        G_MTX_MODELVIEW | G_MTX_PUSH | G_MTX_MUL
+    );
+    ++graphicsTask->matrixIndex;
+}
+
 void popTransform() {
     gSPPopMatrix(g_dl++, G_MTX_MODELVIEW);
 }
@@ -256,17 +277,37 @@ void drawPlayer(GraphicsTask* graphicsTask, const Player* player) {
     drawHearts(graphicsTask, player);
 }
 
-void drawEnemy(GraphicsTask* graphicsTask, const Enemy* enemy) {
+void drawEnemy(GraphicsTask* graphicsTask, const Enemy* enemy, GameState* gameState) {
     float scale = 0.023f * enemy->verletBody.radius;
+    Vec2f moveDirection = normalize2f(
+        sub2f(
+            player_getCharacter(&gameState->players[enemy->targetPlayerIndex])->position,
+            enemy->verletBody.position
+        )
+    );
+    Vec2f vectorWithBob = sub2f(enemy->verletBody.position, enemy->verletBody.oldPosition);
+    Vec2f weightedMoveDirection = normalize2f(add2f(mul2f(moveDirection, 0.95f), (mul2f(vectorWithBob, 0.05f))));
     pushTransform(
         graphicsTask,
-        enemy->rotation, // roll
-        -90.0f, // pitch
-        0.0f, // heading
+        0.0f, // roll
+        enemy->boomTimer > 0.0f ? -90.0f : 0.0f, // pitch
+        enemy->rotation, // heading
         scale,
         enemy->verletBody.position.x,
         enemy->verletBody.position.y,
-        0
+        0.0f
+    );
+    // Makes enemy look at camera to compensate for camera perspective.
+    pushRotation(
+        graphicsTask,
+        enemy->boomTimer > 0.0f ? 0.0f : -radToDeg(atan(length2f(enemy->verletBody.position) / gameState->camera.position.z)),
+        (Vec3f) {-enemy->verletBody.position.y, enemy->verletBody.position.x, 0.0f}
+    );
+    // Makes enemy look at move direction.
+    pushRotation(
+        graphicsTask,
+        enemy->boomTimer > 0.0f ? 0.0f : 15.0f,
+        (Vec3f) {-weightedMoveDirection.y, weightedMoveDirection.x, 0.0f}
     );
     if(enemy->boomTimer <= 0.0f) {
         drawTexturedModel(Wtx_enemy);
@@ -286,6 +327,8 @@ void drawEnemy(GraphicsTask* graphicsTask, const Enemy* enemy) {
     else{
         drawTexturedModel(Wtx_boom0);
     }
+    popTransform();
+    popTransform();
     popTransform();
 }
 
@@ -365,7 +408,7 @@ void renderGame(GraphicsTask* graphicsTask, struct GameState* gameState) {
         }
         for(i = 0; i < MAX_ENEMIES; ++i) {
             if (enemy_exists(&gameState->enemies[i])) {
-                drawEnemy(graphicsTask, &gameState->enemies[i]);
+                drawEnemy(graphicsTask, &gameState->enemies[i], gameState);
             }
         }
     }
